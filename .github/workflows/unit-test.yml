@@ -1,0 +1,31 @@
+name: Unit Test
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**/README.md'
+    branches: [main, feature-*]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Load env file
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          echo "Loading..."
+          echo $ENV_FILE | base64 --decode > .env
+          echo "Finished loading env file, result:"
+          cat .env
+
+      - name: Running unit test
+        run: go test -v -cover ./...

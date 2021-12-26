@@ -1,0 +1,31 @@
+name: Deploy Heroku
+
+on:
+  push:
+    paths-ignore:
+      - '**/README.md'
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Load env file
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          echo "Loading... env file"
+          echo $ENV_FILE | base64 --decode > .env
+          echo "Finished loading env file, result:"
+          cat .env
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: 'hms-alterra' #Must be unique in Heroku
+          heroku_email: 'rizadwiandhika@gmail.com'
+          env_file: '.env'
+          usedocker: true
