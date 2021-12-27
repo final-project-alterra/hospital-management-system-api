@@ -4,6 +4,8 @@ import "time"
 
 type AdminCore struct {
 	ID        int
+	CreatedBy int
+	UpdatedBy int
 	Email     string
 	Password  string
 	Name      string
@@ -22,7 +24,7 @@ type IBusiness interface {
 	FindAdminByEmail(email string) (AdminCore, error)
 	CreateAdmin(admin AdminCore) error
 	EditAdmin(admin AdminCore) error
-	EditAdminPassword(id int, oldPassword string, newPassword string) error
+	EditAdminPassword(id int, updatedBy int, oldPassword string, newPassword string) error
 	RemoveAdminById(id int) error
 }
 
