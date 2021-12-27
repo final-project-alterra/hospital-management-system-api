@@ -25,7 +25,7 @@ type IBusiness interface {
 	CreateAdmin(admin AdminCore) error
 	EditAdmin(admin AdminCore) error
 	EditAdminPassword(id int, updatedBy int, oldPassword string, newPassword string) error
-	RemoveAdminById(id int) error
+	RemoveAdminById(id int, updatedBy int) error
 }
 
 type IData interface {
@@ -34,5 +34,5 @@ type IData interface {
 	SelectAdminByEmail(email string) (AdminCore, error)
 	InsertAdmin(admin AdminCore) error
 	UpdateAdmin(admin AdminCore) error
-	DeleteAdminById(id int) error
+	DeleteAdminById(id int, updatedBy int) error
 }
