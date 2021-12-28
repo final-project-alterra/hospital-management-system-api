@@ -280,18 +280,66 @@ func (d *doctorBusiness) RemoveSpeciality(id int) error {
 }
 
 func (d *doctorBusiness) FindRooms() ([]doctors.RoomCore, error) {
-	return []doctors.RoomCore{}, nil
+	const op errors.Op = "doctors.business.FindRooms"
+	rooms, err := d.data.SelectRooms()
+	if err != nil {
+		return []doctors.RoomCore{}, nil
+	}
+	return rooms, nil
 }
 
 func (d *doctorBusiness) CreateRoom(room doctors.RoomCore) error {
+	const op errors.Op = "doctors.business.CreateRoom"
+
+	_, err := d.data.SelectRoomByCode(room.Code)
+	if err == nil {
+		errMessage := "Room with this code already exists"
+		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+	}
+	if err != nil && errors.Kind(err) != errors.KindNotFound {
+		return errors.E(err, op)
+	}
+
+	err = d.data.InsertRoom(room)
+	if err != nil {
+		return errors.E(err, op)
+	}
 	return nil
 }
 
 func (d *doctorBusiness) EditRoom(room doctors.RoomCore) error {
-	return nil
+	const op errors.Op = "doctors.business.EditRoom"
 
+	existingRoom, err := d.data.SelectRoomById(room.ID)
+	if err != nil {
+		return errors.E(err, op)
+	}
+
+	otherRoom, err := d.data.SelectRoomByCode(room.Code)
+	if err == nil && otherRoom.ID != room.ID {
+		errMessage := "Another room is using this code"
+		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+	}
+	if err != nil && errors.Kind(err) != errors.KindNotFound {
+		return errors.E(err, op)
+	}
+
+	existingRoom.Floor = room.Floor
+	existingRoom.Code = room.Code
+
+	err = d.EditRoom(existingRoom)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	return nil
 }
 
 func (d *doctorBusiness) RemoveRoomById(id int) error {
+	const op errors.Op = "doctors.business.RemoveRoomById"
+
+	err := d.data.DeleteRoomById(id)
+	if err != nil {
+		return errors.E(err, op)
+	}
 	return nil
 }
