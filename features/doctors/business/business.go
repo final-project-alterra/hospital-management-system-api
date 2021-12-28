@@ -2,11 +2,13 @@ package business
 
 import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
+	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 )
 
 type doctorBusiness struct {
-	data doctors.IData
+	data          doctors.IData
+	adminBusiness admins.IBusiness
 }
 
 func (d *doctorBusiness) FindDoctors() ([]doctors.DoctorCore, error) {
@@ -53,152 +55,152 @@ func (d *doctorBusiness) FindDoctorByEmail(email string) (doctors.DoctorCore, er
 	return doctorData, nil
 }
 
-// func (d *doctorBusiness) CreateDoctor(doctor doctors.DoctorCore) error {
-// 	const op errors.Op = "doctors.business.CreateAdmin"
-// 	var errMessage errors.ErrClientMessage
+func (d *doctorBusiness) CreateDoctor(doctor doctors.DoctorCore) error {
+	const op errors.Op = "doctors.business.CreateAdmin"
+	var errMessage errors.ErrClientMessage
 
-// 	// Check admin who is creating this new doctor, if not found or error, return error
-// 	_, err := d.adminBusiness.FindAdminById(doctor.CreatedBy)
-// 	if err != nil {
-// 		switch errors.Kind(err) {
-// 		case errors.KindNotFound:
-// 			errMessage = "Admin who wants to create this doctor is not found"
-// 			return errors.E(err, op, errMessage)
-// 		default:
-// 			return errors.E(err, op)
-// 		}
-// 	}
+	// Check admin who is creating this new doctor, if not found or error, return error
+	_, err := d.adminBusiness.FindAdminById(doctor.CreatedBy)
+	if err != nil {
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wants to create this doctor is not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
 
-// 	// Check speciality, if not found or error, return error
-// 	_, err = d.data.SelectSpecialityById(doctor.Speciality.ID)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
+	// Check speciality, if not found or error, return error
+	_, err = d.data.SelectSpecialityById(doctor.Speciality.ID)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// 	// Check room, if not found or error, return error
-// 	_, err = d.data.SelectRoomById(doctor.Room.ID)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
+	// Check room, if not found or error, return error
+	_, err = d.data.SelectRoomById(doctor.Room.ID)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// 	// Check wheter email is already registered
-// 	_, err = d.data.SelectDoctorByEmail(doctor.Email)
-// 	if err == nil {
-// 		err = errors.New("Duplicate email when createing doctor admin")
-// 		errMessage = "Email already exists"
-// 		return errors.E(err, op, errMessage, errors.KindUnprocessable)
-// 	}
-// 	if errors.Kind(err) != errors.KindNotFound {
-// 		return errors.E(err, op)
-// 	}
+	// Check wheter email is already registered
+	_, err = d.data.SelectDoctorByEmail(doctor.Email)
+	if err == nil {
+		err = errors.New("Duplicate email when createing doctor admin")
+		errMessage = "Email already exists"
+		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+	}
+	if errors.Kind(err) != errors.KindNotFound {
+		return errors.E(err, op)
+	}
 
-// 	doctor.Password, err = hash.Generate(doctor.Password)
-// 	if err != nil {
-// 		errMessage = "Something went wrong"
-// 		return errors.E(err, op, errMessage, errors.KindServerError)
-// 	}
+	doctor.Password, err = hash.Generate(doctor.Password)
+	if err != nil {
+		errMessage = "Something went wrong"
+		return errors.E(err, op, errMessage, errors.KindServerError)
+	}
 
-// 	err = d.data.InsertDoctor(doctor)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
-// 	return nil
-// }
+	err = d.data.InsertDoctor(doctor)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	return nil
+}
 
-// func (d *doctorBusiness) EditDoctor(doctor doctors.DoctorCore) error {
-// 	const op errors.Op = "doctors.business.EditDoctor"
-// 	var errMessage errors.ErrClientMessage
+func (d *doctorBusiness) EditDoctor(doctor doctors.DoctorCore) error {
+	const op errors.Op = "doctors.business.EditDoctor"
+	var errMessage errors.ErrClientMessage
 
-// 	existingDoctor, err := d.data.SelectDoctorById(doctor.ID)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
+	existingDoctor, err := d.data.SelectDoctorById(doctor.ID)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// 	// Check speciality, if not found or error, return error
-// 	_, err = d.data.SelectSpecialityById(doctor.Speciality.ID)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
+	// Check speciality, if not found or error, return error
+	_, err = d.data.SelectSpecialityById(doctor.Speciality.ID)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// 	// Check room, if not found or error, return error
-// 	_, err = d.data.SelectRoomById(doctor.Room.ID)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
+	// Check room, if not found or error, return error
+	_, err = d.data.SelectRoomById(doctor.Room.ID)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// 	_, err = d.adminBusiness.SelectAdminById(doctor.UpdatedBy)
-// 	if err != nil {
-// 		switch errors.Kind(err) {
-// 		case errors.KindNotFound:
-// 			errMessage = "Admin who wanted to update was not found"
-// 			return errors.E(err, op, errMessage)
-// 		default:
-// 			return errors.E(err, op)
-// 		}
-// 	}
+	_, err = d.adminBusiness.FindAdminById(doctor.UpdatedBy)
+	if err != nil {
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wanted to update was not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
 
-// 	existingDoctor.UpdatedBy = doctor.UpdatedBy
-// 	existingDoctor.Name = doctor.Name
-// 	existingDoctor.Age = doctor.Age
-// 	existingDoctor.Address = doctor.Address
-// 	existingDoctor.Phone = doctor.Phone
-// 	existingDoctor.Gender = doctor.Gender
+	existingDoctor.UpdatedBy = doctor.UpdatedBy
+	existingDoctor.Name = doctor.Name
+	existingDoctor.Age = doctor.Age
+	existingDoctor.Address = doctor.Address
+	existingDoctor.Phone = doctor.Phone
+	existingDoctor.Gender = doctor.Gender
 
-// 	err = d.data.UpdateDoctor(existingDoctor)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
-// 	return nil
-// }
+	err = d.data.UpdateDoctor(existingDoctor)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	return nil
+}
 
-// func (d *doctorBusiness) EditDoctorPassword(id int, updater int, oldPassword string, newPassword string) error {
-// 	const op errors.Op = "doctors.business.EditDoctorPassword"
-// 	var errMessage errors.ErrClientMessage
+func (d *doctorBusiness) EditDoctorPassword(id int, updatedBy int, oldPassword string, newPassword string) error {
+	const op errors.Op = "doctors.business.EditDoctorPassword"
+	var errMessage errors.ErrClientMessage
 
-// 	_, err := d.adminBusiness
-// 	if err != nil {
-// 		switch errors.Kind(err) {
-// 		case errors.KindNotFound:
-// 			errMessage = "Admin who wants to update is not found"
-// 			return errors.E(err, op, errMessage)
-// 		default:
-// 			return errors.E(err, op)
-// 		}
-// 	}
+	_, err := d.adminBusiness.FindAdminById(updatedBy)
+	if err != nil {
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wants to update is not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
 
-// 	existingAdmin, err := ab.data.SelectAdminById(id)
-// 	if err != nil {
-// 		switch errors.Kind(err) {
-// 		case errors.KindNotFound:
-// 			errMessage = "Admin who wants to be updated is not found"
-// 			return errors.E(err, op, errMessage)
-// 		default:
-// 			return errors.E(err, op)
-// 		}
-// 	}
+	existingDoctor, err := d.data.SelectDoctorById(id)
+	if err != nil {
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wants to be updated is not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
 
-// 	doesMatch := hash.Validate(existingAdmin.Password, oldPassword)
-// 	if !doesMatch {
-// 		err = errors.New("Wrong password")
-// 		errMessage = "Wrong old password"
-// 		return errors.E(err, op, errMessage, errors.KindUnprocessable)
-// 	}
+	doesMatch := hash.Validate(existingDoctor.Password, oldPassword)
+	if !doesMatch {
+		err = errors.New("Wrong password")
+		errMessage = "Wrong old password"
+		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+	}
 
-// 	existingAdmin.UpdatedBy = updatedBy
-// 	existingAdmin.Password, err = hash.Generate(newPassword)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
+	existingDoctor.UpdatedBy = updatedBy
+	existingDoctor.Password, err = hash.Generate(newPassword)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// 	err = ab.data.UpdateAdmin(existingAdmin)
-// 	if err != nil {
-// 		return errors.E(err, op)
-// 	}
+	err = d.data.UpdateDoctor(existingDoctor)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
-// func (d *doctorBusiness) RemoveDoctorById(id int, updater int) error {
+// func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
 // 	return nil
 // }
 
