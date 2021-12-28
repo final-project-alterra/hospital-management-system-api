@@ -293,6 +293,7 @@ func (d *doctorBusiness) CreateRoom(room doctors.RoomCore) error {
 
 	_, err := d.data.SelectRoomByCode(room.Code)
 	if err == nil {
+		err = errors.New("Room with this code already exists")
 		errMessage := "Room with this code already exists"
 		return errors.E(err, op, errMessage, errors.KindUnprocessable)
 	}
