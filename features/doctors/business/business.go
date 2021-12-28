@@ -4,6 +4,7 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 )
 
 type doctorBusiness struct {
@@ -56,7 +57,7 @@ func (d *doctorBusiness) FindDoctorByEmail(email string) (doctors.DoctorCore, er
 }
 
 func (d *doctorBusiness) CreateDoctor(doctor doctors.DoctorCore) error {
-	const op errors.Op = "doctors.business.CreateAdmin"
+	const op errors.Op = "doctors.business.CreateDoctor"
 	var errMessage errors.ErrClientMessage
 
 	// Check admin who is creating this new doctor, if not found or error, return error
@@ -86,7 +87,7 @@ func (d *doctorBusiness) CreateDoctor(doctor doctors.DoctorCore) error {
 	// Check wheter email is already registered
 	_, err = d.data.SelectDoctorByEmail(doctor.Email)
 	if err == nil {
-		err = errors.New("Duplicate email when createing doctor admin")
+		err = errors.New("Duplicate email when creating new doctor")
 		errMessage = "Email already exists"
 		return errors.E(err, op, errMessage, errors.KindUnprocessable)
 	}
@@ -161,7 +162,7 @@ func (d *doctorBusiness) EditDoctorPassword(id int, updatedBy int, oldPassword s
 	if err != nil {
 		switch errors.Kind(err) {
 		case errors.KindNotFound:
-			errMessage = "Admin who wants to update is not found"
+			errMessage = "Admin who wants to change doctor passowrd is not found"
 			return errors.E(err, op, errMessage)
 		default:
 			return errors.E(err, op)
@@ -172,7 +173,7 @@ func (d *doctorBusiness) EditDoctorPassword(id int, updatedBy int, oldPassword s
 	if err != nil {
 		switch errors.Kind(err) {
 		case errors.KindNotFound:
-			errMessage = "Admin who wants to be updated is not found"
+			errMessage = "Doctor is not found"
 			return errors.E(err, op, errMessage)
 		default:
 			return errors.E(err, op)
@@ -200,43 +201,97 @@ func (d *doctorBusiness) EditDoctorPassword(id int, updatedBy int, oldPassword s
 	return nil
 }
 
-// func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
-// 	return nil
-// }
+func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
+	const op errors.Op = "doctors.business.RemoveDoctorById"
+	var errMessage errors.ErrClientMessage
 
-// func (d *doctorBusiness) FindSpecialities() ([]SpecialityCore, error) {
-// 	return nil
+	_, err := d.adminBusiness.FindAdminById(updatedBy)
+	if err != nil {
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wants to delete doctor is not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
 
-// }
+	err = d.data.DeleteDoctorById(id, updatedBy)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	return nil
+}
 
-// func (d *doctorBusiness) FindSpecialityById(id int) (SpecialityCore, error) {
+func (d *doctorBusiness) FindSpecialities() ([]doctors.SpecialityCore, error) {
+	const op errors.Op = "doctors.business.FindSpecialities"
 
-// }
+	specialities, err := d.data.SelectSpecialities()
+	if err != nil {
+		return []doctors.SpecialityCore{}, errors.E(err, op)
+	}
+	return specialities, nil
+}
 
-// func (d *doctorBusiness) CreateSpeciality(speciality SpecialityCore) error {
+func (d *doctorBusiness) FindSpecialityById(id int) (doctors.SpecialityCore, error) {
+	const op errors.Op = "doctors.business.FindSpecialityById"
 
-// }
+	speciality, err := d.data.SelectSpecialityById(id)
+	if err != nil {
+		return doctors.SpecialityCore{}, errors.E(err, op)
+	}
+	return speciality, nil
+}
 
-// func (d *doctorBusiness) EditSpeciality(speciality SpecialityCore) error {
+func (d *doctorBusiness) CreateSpeciality(speciality doctors.SpecialityCore) error {
+	const op errors.Op = "doctors.business.CreateSpeciality"
 
-// }
+	err := d.data.InsertSpeciality(speciality)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	return nil
+}
 
-// func (d *doctorBusiness) RemoveSpeciality(id int) error {
+func (d *doctorBusiness) EditSpeciality(speciality doctors.SpecialityCore) error {
+	const op errors.Op = "doctors.business.EditSpeciality"
 
-// }
+	existingSpeciality, err := d.data.SelectSpecialityById(speciality.ID)
+	if err != nil {
+		return errors.E(err, op)
+	}
 
-// func (d *doctorBusiness) FindRooms() ([]RoomCore, error) {
+	existingSpeciality.Name = speciality.Name
+	err = d.data.UpdateSpeciality(existingSpeciality)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	return nil
+}
 
-// }
+func (d *doctorBusiness) RemoveSpeciality(id int) error {
+	const op errors.Op = "doctors.business.RemoveSpeciality"
 
-// func (d *doctorBusiness) CreateRoom(room RoomCore) error {
+	err := d.data.DeleteSpecialityId(id)
+	if err != nil {
+		errors.E(err, op)
+	}
+	return nil
+}
 
-// }
+func (d *doctorBusiness) FindRooms() ([]doctors.RoomCore, error) {
+	return []doctors.RoomCore{}, nil
+}
 
-// func (d *doctorBusiness) EditRoom(room RoomCore) error {
+func (d *doctorBusiness) CreateRoom(room doctors.RoomCore) error {
+	return nil
+}
 
-// }
+func (d *doctorBusiness) EditRoom(room doctors.RoomCore) error {
+	return nil
 
-// func (d *doctorBusiness) RemoveRoomById(id int) error {
+}
 
-// }
+func (d *doctorBusiness) RemoveRoomById(id int) error {
+	return nil
+}
