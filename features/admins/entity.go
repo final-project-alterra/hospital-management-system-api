@@ -13,7 +13,7 @@ type AdminCore struct {
 	ImageUrl  string
 	Phone     string
 	Address   string
-	Gender    rune
+	Gender    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
