@@ -311,6 +311,7 @@ func (d *doctorBusiness) CreateRoom(room doctors.RoomCore) error {
 
 func (d *doctorBusiness) EditRoom(room doctors.RoomCore) error {
 	const op errors.Op = "doctors.business.EditRoom"
+	var errMessage errors.ErrClientMessage
 
 	existingRoom, err := d.data.SelectRoomById(room.ID)
 	if err != nil {
@@ -319,7 +320,8 @@ func (d *doctorBusiness) EditRoom(room doctors.RoomCore) error {
 
 	otherRoom, err := d.data.SelectRoomByCode(room.Code)
 	if err == nil && otherRoom.ID != room.ID {
-		errMessage := "Another room is using this code"
+		err = errors.New("Duplicate room code")
+		errMessage = "Another room is using this code"
 		return errors.E(err, op, errMessage, errors.KindUnprocessable)
 	}
 	if err != nil && errors.Kind(err) != errors.KindNotFound {
