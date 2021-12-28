@@ -283,7 +283,7 @@ func (d *doctorBusiness) FindRooms() ([]doctors.RoomCore, error) {
 	const op errors.Op = "doctors.business.FindRooms"
 	rooms, err := d.data.SelectRooms()
 	if err != nil {
-		return []doctors.RoomCore{}, nil
+		return []doctors.RoomCore{}, errors.E(err, op)
 	}
 	return rooms, nil
 }
