@@ -5,7 +5,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashPassword(password string) (string, error) {
+func Generate(password string) (string, error) {
 	const op errors.Op = "hash.Hash"
 	const COST = 14
 

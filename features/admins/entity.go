@@ -4,6 +4,8 @@ import "time"
 
 type AdminCore struct {
 	ID        int
+	CreatedBy int
+	UpdatedBy int
 	Email     string
 	Password  string
 	Name      string
@@ -11,7 +13,7 @@ type AdminCore struct {
 	ImageUrl  string
 	Phone     string
 	Address   string
-	Gender    rune
+	Gender    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -22,8 +24,8 @@ type IBusiness interface {
 	FindAdminByEmail(email string) (AdminCore, error)
 	CreateAdmin(admin AdminCore) error
 	EditAdmin(admin AdminCore) error
-	EditAdminPassword(id int, oldPassword string, newPassword string) error
-	RemoveAdminById(id int) error
+	EditAdminPassword(id int, updatedBy int, oldPassword string, newPassword string) error
+	RemoveAdminById(id int, updatedBy int) error
 }
 
 type IData interface {
@@ -32,5 +34,5 @@ type IData interface {
 	SelectAdminByEmail(email string) (AdminCore, error)
 	InsertAdmin(admin AdminCore) error
 	UpdateAdmin(admin AdminCore) error
-	DeleteAdminById(id int) error
+	DeleteAdminById(id int, updatedBy int) error
 }
