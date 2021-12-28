@@ -290,11 +290,12 @@ func (d *doctorBusiness) FindRooms() ([]doctors.RoomCore, error) {
 
 func (d *doctorBusiness) CreateRoom(room doctors.RoomCore) error {
 	const op errors.Op = "doctors.business.CreateRoom"
+	var errMessage errors.ErrClientMessage
 
 	_, err := d.data.SelectRoomByCode(room.Code)
 	if err == nil {
 		err = errors.New("Room with this code already exists")
-		errMessage := "Room with this code already exists"
+		errMessage = "Room with this code already exists"
 		return errors.E(err, op, errMessage, errors.KindUnprocessable)
 	}
 	if err != nil && errors.Kind(err) != errors.KindNotFound {
@@ -328,7 +329,7 @@ func (d *doctorBusiness) EditRoom(room doctors.RoomCore) error {
 	existingRoom.Floor = room.Floor
 	existingRoom.Code = room.Code
 
-	err = d.EditRoom(existingRoom)
+	err = d.data.UpdateRoom(existingRoom)
 	if err != nil {
 		return errors.E(err, op)
 	}
