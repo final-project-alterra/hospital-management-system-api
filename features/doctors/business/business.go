@@ -274,7 +274,7 @@ func (d *doctorBusiness) RemoveSpeciality(id int) error {
 
 	err := d.data.DeleteSpecialityId(id)
 	if err != nil {
-		errors.E(err, op)
+		return errors.E(err, op)
 	}
 	return nil
 }
