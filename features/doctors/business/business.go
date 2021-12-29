@@ -271,8 +271,19 @@ func (d *doctorBusiness) EditSpeciality(speciality doctors.SpecialityCore) error
 
 func (d *doctorBusiness) RemoveSpeciality(id int) error {
 	const op errors.Op = "doctors.business.RemoveSpeciality"
+	var errMessage errors.ErrClientMessage
 
-	err := d.data.DeleteSpecialityId(id)
+	data, err := d.data.SelectDoctorsBySpecialityId(id)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	if len(data) > 0 {
+		err := errors.New("Can't delete speciality because it has doctors")
+		errMessage = "Can't delete speciality because it has doctors"
+		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+	}
+
+	err = d.data.DeleteSpecialityId(id)
 	if err != nil {
 		return errors.E(err, op)
 	}
@@ -340,8 +351,19 @@ func (d *doctorBusiness) EditRoom(room doctors.RoomCore) error {
 
 func (d *doctorBusiness) RemoveRoomById(id int) error {
 	const op errors.Op = "doctors.business.RemoveRoomById"
+	var errMessage errors.ErrClientMessage
 
-	err := d.data.DeleteRoomById(id)
+	data, err := d.data.SelectDoctorsByRoomId(id)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	if len(data) > 0 {
+		err := errors.New("Can't delete room because it has doctors")
+		errMessage = "Can't delete room because it has doctors"
+		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+	}
+
+	err = d.data.DeleteRoomById(id)
 	if err != nil {
 		return errors.E(err, op)
 	}
