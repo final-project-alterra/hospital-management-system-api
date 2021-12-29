@@ -886,6 +886,11 @@ func TestEditSpeciality(t *testing.T) {
 func TestRemoveSpeciality(t *testing.T) {
 	t.Run("valid - when everyhing is fine", func(t *testing.T) {
 		doctorData.
+			On("SelectDoctorsBySpecialityId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{}, nil).
+			Once()
+
+		doctorData.
 			On("DeleteSpecialityId", mock.AnythingOfType("int")).
 			Return(nil).
 			Once()
@@ -895,7 +900,34 @@ func TestRemoveSpeciality(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("valid - SelectDoctorsBySpecialityId return error", func(t *testing.T) {
+		doctorData.
+			On("SelectDoctorsBySpecialityId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{}, errServer).
+			Once()
+
+		err := doctorBusiness.RemoveSpeciality(1)
+
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when there exists doctor with that speciality", func(t *testing.T) {
+		doctorData.
+			On("SelectDoctorsBySpecialityId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{doctorHan}, nil).
+			Once()
+
+		err := doctorBusiness.RemoveSpeciality(1)
+
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - when DeleteSpecialityId error", func(t *testing.T) {
+		doctorData.
+			On("SelectDoctorsBySpecialityId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{}, nil).
+			Once()
+
 		doctorData.
 			On("DeleteSpecialityId", mock.AnythingOfType("int")).
 			Return(errServer).
@@ -905,6 +937,7 @@ func TestRemoveSpeciality(t *testing.T) {
 
 		assert.Error(t, err)
 	})
+
 }
 
 func TestFindRooms(t *testing.T) {
@@ -1082,6 +1115,11 @@ func TestEditRoom(t *testing.T) {
 func TestDeleteRoom(t *testing.T) {
 	t.Run("valid - when everything is fine", func(t *testing.T) {
 		doctorData.
+			On("SelectDoctorsByRoomId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{}, nil).
+			Once()
+
+		doctorData.
 			On("DeleteRoomById", mock.AnythingOfType("int")).
 			Return(nil).
 			Once()
@@ -1090,7 +1128,32 @@ func TestDeleteRoom(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	t.Run("valid - when DeleteRoomById error", func(t *testing.T) {
+	t.Run("valid - when SelectDoctorsByRoomId return error", func(t *testing.T) {
+		doctorData.
+			On("SelectDoctorsByRoomId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{}, errServer).
+			Once()
+
+		err := doctorBusiness.RemoveRoomById(1)
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when there are still doctor using the room", func(t *testing.T) {
+		doctorData.
+			On("SelectDoctorsByRoomId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{doctorHan}, nil).
+			Once()
+
+		err := doctorBusiness.RemoveRoomById(1)
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when DeleteRoomById return error", func(t *testing.T) {
+		doctorData.
+			On("SelectDoctorsByRoomId", mock.AnythingOfType("int")).
+			Return([]doctors.DoctorCore{}, nil).
+			Once()
+
 		doctorData.
 			On("DeleteRoomById", mock.AnythingOfType("int")).
 			Return(errServer).
@@ -1099,4 +1162,5 @@ func TestDeleteRoom(t *testing.T) {
 		err := doctorBusiness.RemoveRoomById(1)
 		assert.Error(t, err)
 	})
+
 }
