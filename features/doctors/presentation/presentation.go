@@ -294,3 +294,88 @@ func (dp *DoctorPresentation) DeleteSpeciality(c echo.Context) error {
 
 	return response.Success(c, status, message, nil)
 }
+
+func (dp *DoctorPresentation) GetRooms(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success retrieving rooms"
+	const op errors.Op = "doctors.presentation.GetRooms"
+
+	rooms, err := dp.business.FindRooms()
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, response.ListRooms(rooms))
+}
+
+func (dp *DoctorPresentation) PostRoom(c echo.Context) error {
+	status := http.StatusCreated
+	message := "Success creating rooms"
+	const op errors.Op = "doctors.presentation.PostRoom"
+	var errMessage errors.ErrClientMessage
+
+	room := request.CreateRoomRequest{}
+	err := c.Bind(&room)
+	if err != nil {
+		errMessage = "Unable to parse payload request"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindBadRequest))
+	}
+
+	err = dp.valitate.Struct(room)
+	if err != nil {
+		errMessage = "Invalid. Makesure all field is filled correctly"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindUnprocessable))
+	}
+
+	err = dp.business.CreateRoom(room.ToRoomCore())
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+	return response.Success(c, status, message, nil)
+}
+
+func (dp *DoctorPresentation) PutEditRoom(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success updating room"
+	const op errors.Op = "doctors.presentation.PutEditRoom"
+	var errMessage errors.ErrClientMessage
+
+	room := request.UpdateRoomRequest{}
+	err := c.Bind(&room)
+	if err != nil {
+		errMessage = "Unable to parse payload request"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindBadRequest))
+	}
+
+	err = dp.valitate.Struct(room)
+	if err != nil {
+		errMessage = "Invalid. Makesure all field is filled correctly"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindUnprocessable))
+	}
+
+	err = dp.business.EditRoom(room.ToRoomCore())
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
+func (dp *DoctorPresentation) DeleteRoom(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success deleting room"
+	const op errors.Op = "doctors.presentation.DeleteRoom"
+	var errMessage errors.ErrClientMessage
+
+	roomId, err := strconv.Atoi(c.Param("roomId"))
+	if err != nil || roomId < 1 {
+		errMessage = "Invalid id room"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindBadRequest))
+	}
+
+	err = dp.business.RemoveRoomById(roomId)
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+	return response.Success(c, status, message, nil)
+}
