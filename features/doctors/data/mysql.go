@@ -166,11 +166,76 @@ func (r *mySQLRepo) DeleteDoctorById(id int, updatedBy int) error {
 	return nil
 }
 
-func (r *mySQLRepo) SelectSpecialities() ([]doctors.SpecialityCore, error)
-func (r *mySQLRepo) SelectSpecialityById(id int) (doctors.SpecialityCore, error)
-func (r *mySQLRepo) InsertSpeciality(speciality doctors.SpecialityCore) error
-func (r *mySQLRepo) UpdateSpeciality(speciality doctors.SpecialityCore) error
-func (r *mySQLRepo) DeleteSpecialityId(id int) error
+func (r *mySQLRepo) SelectSpecialities() ([]doctors.SpecialityCore, error) {
+	const op errors.Op = "doctors.data.SelectSpecialities"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	var specialityRecords []Speciality
+	err := r.db.Find(&specialityRecords).Error
+	if err != nil {
+		return []doctors.SpecialityCore{}, errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return ToSliceSpecialityCore(specialityRecords), nil
+}
+func (r *mySQLRepo) SelectSpecialityById(id int) (doctors.SpecialityCore, error) {
+	const op errors.Op = "doctors.data.SelectSpecialityById"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	var specialityRecord Speciality
+	err := r.db.First(&specialityRecord, id).Error
+	if err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			errMessage = "Speciality not found"
+			return doctors.SpecialityCore{}, errors.E(err, op, errMessage, errors.KindNotFound)
+
+		default:
+			return doctors.SpecialityCore{}, errors.E(err, op, errMessage, errors.KindServerError)
+		}
+	}
+	return specialityRecord.ToSpecialityCore(), nil
+}
+func (r *mySQLRepo) InsertSpeciality(speciality doctors.SpecialityCore) error {
+	const op errors.Op = "doctors.data.InsertSpeciality"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	specialityRecord := Speciality{
+		Name: speciality.Name,
+	}
+	err := r.db.Create(&specialityRecord).Error
+	if err != nil {
+		return errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return nil
+}
+func (r *mySQLRepo) UpdateSpeciality(speciality doctors.SpecialityCore) error {
+	const op errors.Op = "doctors.data.UpdateSpeciality"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	updatedSpeciality := Speciality{
+		Model: gorm.Model{
+			ID:        uint(speciality.ID),
+			CreatedAt: speciality.CreatedAt,
+		},
+		Name: speciality.Name,
+	}
+
+	err := r.db.Save(updatedSpeciality).Error
+	if err != nil {
+		return errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return nil
+}
+func (r *mySQLRepo) DeleteSpecialityId(id int) error {
+	const op errors.Op = "doctors.data.DeleteSpecialityId"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	err := r.db.Delete(&Speciality{}, id).Error
+	if err != nil {
+		return errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return nil
+}
 
 func (r *mySQLRepo) SelectRooms() ([]doctors.RoomCore, error)
 func (r *mySQLRepo) SelectRoomById(id int) (doctors.RoomCore, error)
