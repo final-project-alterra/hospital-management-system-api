@@ -12,6 +12,12 @@ type mySQLRepo struct {
 	db *gorm.DB
 }
 
+func NewMySQLRepo(db *gorm.DB) *mySQLRepo {
+	return &mySQLRepo{
+		db: db,
+	}
+}
+
 func (r *mySQLRepo) SelectNurses() ([]nurses.NurseCore, error) {
 	const op errors.Op = "nurses.data.SelectNurses"
 	var errMessage errors.ErrClientMessage = "Something went wrong"
