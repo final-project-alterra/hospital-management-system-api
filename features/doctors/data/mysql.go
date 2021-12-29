@@ -237,9 +237,93 @@ func (r *mySQLRepo) DeleteSpecialityId(id int) error {
 	return nil
 }
 
-func (r *mySQLRepo) SelectRooms() ([]doctors.RoomCore, error)
-func (r *mySQLRepo) SelectRoomById(id int) (doctors.RoomCore, error)
-func (r *mySQLRepo) SelectRoomByCode(code string) (doctors.RoomCore, error)
-func (r *mySQLRepo) InsertRoom(room doctors.RoomCore) error
-func (r *mySQLRepo) UpdateRoom(room doctors.RoomCore) error
-func (r *mySQLRepo) DeleteRoomById(id int) error
+func (r *mySQLRepo) SelectRooms() ([]doctors.RoomCore, error) {
+	const op errors.Op = "doctors.data.SelectRooms"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	var roomRecords []Room
+	err := r.db.Find(&roomRecords).Error
+	if err != nil {
+		return []doctors.RoomCore{}, errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return ToSliceRoomCore(roomRecords), nil
+}
+func (r *mySQLRepo) SelectRoomById(id int) (doctors.RoomCore, error) {
+	const op errors.Op = "doctors.data.SelectRoomById"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	var roomRecord Room
+	err := r.db.First(&roomRecord, id).Error
+	if err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			errMessage = "Room not found"
+			return doctors.RoomCore{}, errors.E(err, op, errMessage, errors.KindNotFound)
+
+		default:
+			return doctors.RoomCore{}, errors.E(err, op, errMessage, errors.KindServerError)
+		}
+	}
+	return roomRecord.ToRoomCore(), nil
+}
+func (r *mySQLRepo) SelectRoomByCode(code string) (doctors.RoomCore, error) {
+	const op errors.Op = "doctors.data.SelectRoomByCode"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	var roomRecord Room
+	err := r.db.Where("code = ?", code).First(&roomRecord).Error
+	if err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			errMessage = "Room not found"
+			return doctors.RoomCore{}, errors.E(err, op, errMessage, errors.KindNotFound)
+
+		default:
+			return doctors.RoomCore{}, errors.E(err, op, errMessage, errors.KindServerError)
+		}
+	}
+	return roomRecord.ToRoomCore(), nil
+}
+func (r *mySQLRepo) InsertRoom(room doctors.RoomCore) error {
+	const op errors.Op = "doctors.data.InsertRoom"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	roomRecord := Room{
+		Code:  room.Code,
+		Floor: room.Floor,
+	}
+	err := r.db.Create(&roomRecord).Error
+	if err != nil {
+		return errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return nil
+}
+func (r *mySQLRepo) UpdateRoom(room doctors.RoomCore) error {
+	const op errors.Op = "doctors.data.UpdateRoom"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	updatedRoom := Room{
+		Model: gorm.Model{
+			ID:        uint(room.ID),
+			CreatedAt: room.CreatedAt,
+		},
+		Code:  room.Code,
+		Floor: room.Floor,
+	}
+
+	err := r.db.Save(updatedRoom).Error
+	if err != nil {
+		return errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return nil
+}
+func (r *mySQLRepo) DeleteRoomById(id int) error {
+	const op errors.Op = "doctors.data.DeleteRoomById"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
+
+	err := r.db.Delete(&Room{}, id).Error
+	if err != nil {
+		return errors.E(err, op, errMessage, errors.KindServerError)
+	}
+	return nil
+}
