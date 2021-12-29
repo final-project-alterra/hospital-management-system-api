@@ -81,7 +81,7 @@ func (np *NursePresentation) PostNurse(c echo.Context) error {
 
 func (np *NursePresentation) PutEditNurse(c echo.Context) error {
 	status := http.StatusOK
-	message := "Success creating nurse"
+	message := "Success updating nurse profile data"
 	const op errors.Op = "presentation.nurses.PostNurse"
 	var errMessage errors.ErrClientMessage
 
@@ -112,7 +112,7 @@ func (np *NursePresentation) PutEditNurse(c echo.Context) error {
 
 func (np *NursePresentation) PutEditNursePassword(c echo.Context) error {
 	status := http.StatusOK
-	message := "Success creating nurse"
+	message := "Success editing nurse password"
 	const op errors.Op = "presentation.nurses.PostNurse"
 	var errMessage errors.ErrClientMessage
 
@@ -144,7 +144,7 @@ func (np *NursePresentation) PutEditNursePassword(c echo.Context) error {
 
 func (np *NursePresentation) DeleteNurse(c echo.Context) error {
 	status := http.StatusOK
-	message := "Success creating nurse"
+	message := "Success deleting nurse"
 	const op errors.Op = "presentation.nurses.PostNurse"
 	var errMessage errors.ErrClientMessage
 
