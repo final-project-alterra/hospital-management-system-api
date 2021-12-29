@@ -61,15 +61,15 @@ func (dp *DoctorPresentation) PostDoctor(c echo.Context) error {
 	const op errors.Op = "doctors.presentation.PostDoctor"
 	var errMessage errors.ErrClientMessage
 
-	updatedBy, ok := c.Get("userId").(int)
-	if !ok || updatedBy < 1 {
+	createdBy, ok := c.Get("userId").(int)
+	if !ok || createdBy < 1 {
 		err := errors.New("Invalid admin id")
 		errMessage = "Invalid admin id"
 		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	var doctor request.CreateDoctorRequest
-	doctor.CreatedBy = updatedBy
+	doctor.CreatedBy = createdBy
 
 	err := c.Bind(&doctor)
 	if err != nil {
