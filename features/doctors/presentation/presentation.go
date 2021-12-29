@@ -187,3 +187,110 @@ func (dp *DoctorPresentation) DeleteDoctor(c echo.Context) error {
 	}
 	return response.Success(c, status, message, nil)
 }
+
+func (dp *DoctorPresentation) GetSpecialities(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success retrieving specialities"
+	const op errors.Op = "doctors.presentation.GetSpecialities"
+
+	specialities, err := dp.business.FindSpecialities()
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, response.ListSpecialities(specialities))
+}
+
+func (dp *DoctorPresentation) GetDetailSpeciality(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success retrieving detail speciality"
+	const op errors.Op = "doctors.presentation.GetDetailSpeciality"
+	var errMessage errors.ErrClientMessage
+
+	specialityId, err := strconv.Atoi(c.Param("specialityId"))
+	if err != nil {
+		errMessage = "Invalid id speciality"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindBadRequest))
+	}
+
+	speciality, err := dp.business.FindSpecialityById(specialityId)
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, response.DetailSpeciality(speciality))
+}
+
+func (dp *DoctorPresentation) PostSpeciality(c echo.Context) error {
+	status := http.StatusCreated
+	message := "Success creating speciality"
+	const op errors.Op = "doctors.presentation.PostSpeciality"
+	var errMessage errors.ErrClientMessage
+
+	speciality := request.CreateSpecialityRequest{}
+	err := c.Bind(&speciality)
+	if err != nil {
+		errMessage = "Invalid payload request"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindBadRequest))
+	}
+
+	err = dp.valitate.Struct(speciality)
+	if err != nil {
+		errMessage = "Invalid. Makesure speciality name is filled correctly"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindUnprocessable))
+	}
+
+	err = dp.business.CreateSpeciality(speciality.ToSpecialityCore())
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
+func (dp *DoctorPresentation) PutEditSpeciality(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success updating speciality"
+	const op errors.Op = "doctors.presentation.PutEditSpeciality"
+	var errMessage errors.ErrClientMessage
+
+	speciality := request.UpdateSpecialityRequest{}
+	err := c.Bind(&speciality)
+	if err != nil {
+		errMessage = "Unable to parse payload request"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindBadRequest))
+	}
+
+	err = dp.valitate.Struct(speciality)
+	if err != nil {
+		errMessage = "Invalid. Makesure all field is filled correctly"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindUnprocessable))
+	}
+
+	err = dp.business.EditSpeciality(speciality.ToSpecialityCore())
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
+func (dp *DoctorPresentation) DeleteSpeciality(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success deleting speciality"
+	const op errors.Op = "doctors.presentation.DeleteSpeciality"
+	var errMessage errors.ErrClientMessage
+
+	specialityId, err := strconv.Atoi(c.Param("specialityId"))
+	if err != nil {
+		errMessage = "Invalid id speciality"
+		return response.Error(c, errors.E(op, err, errMessage, errors.KindBadRequest))
+	}
+
+	err = dp.business.RemoveSpeciality(specialityId)
+	if err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, nil)
+}
