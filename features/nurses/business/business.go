@@ -92,11 +92,10 @@ func (n *nurseBusiness) CreateNurse(nurse nurses.NurseCore) error {
 
 func (n *nurseBusiness) EditNurse(nurse nurses.NurseCore) error {
 	const op errors.Op = "nurses.business.EditNurse"
-	var errMessage errors.ErrClientMessage = "Something went wrong"
 
 	_, err := n.adminBusiness.FindAdminById(nurse.UpdatedBy)
 	if err != nil {
-		return errors.E(err, op, errMessage, errors.KindServerError)
+		return errors.E(err, op)
 	}
 
 	existingNurse, err := n.data.SelectNurseById(nurse.ID)
