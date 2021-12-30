@@ -24,8 +24,6 @@ jobs:
         run: |
           echo "Loading..."
           echo $ENV_FILE | base64 --decode > .env
-          echo "Finished loading env file, result:"
-          cat .env
 
       - name: Running unit test
         run: go test -v -cover ./...

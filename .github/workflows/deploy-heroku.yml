@@ -20,8 +20,6 @@ jobs:
         run: |
           echo "Loading... env file"
           echo $ENV_FILE | base64 --decode > .env
-          echo "Finished loading env file, result:"
-          cat .env
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
