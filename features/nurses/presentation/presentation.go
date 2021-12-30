@@ -17,6 +17,10 @@ type NursePresentation struct {
 	validate *validator.Validate
 }
 
+func NewNursePresentation(business nurses.IBusiness) *NursePresentation {
+	return &NursePresentation{business, validator.New()}
+}
+
 func (np *NursePresentation) GetNurses(c echo.Context) error {
 	status := http.StatusOK
 	message := "Success retrieving nurses data"
