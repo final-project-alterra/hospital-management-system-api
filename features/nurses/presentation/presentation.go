@@ -39,7 +39,7 @@ func (np *NursePresentation) GetDetailNurse(c echo.Context) error {
 	const op errors.Op = "presentation.nurses.GetDetailNurse"
 	var errMessage errors.ErrClientMessage
 
-	nurseId, err := strconv.Atoi(c.Param("id"))
+	nurseId, err := strconv.Atoi(c.Param("nurseId"))
 	if err != nil {
 		errMessage = "Invalid nurse id"
 		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
@@ -159,7 +159,7 @@ func (np *NursePresentation) DeleteNurse(c echo.Context) error {
 		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
-	nurseId, err := strconv.Atoi(c.Param("id"))
+	nurseId, err := strconv.Atoi(c.Param("nurseId"))
 	if err != nil {
 		err := errors.New("Invalid nurse id")
 		errMessage = "Invalid nurse id"
