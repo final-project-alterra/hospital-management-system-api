@@ -54,7 +54,7 @@ func (n *nurseBusiness) FindNurseByEmail(email string) (nurses.NurseCore, error)
 
 func (n *nurseBusiness) CreateNurse(nurse nurses.NurseCore) error {
 	const op errors.Op = "nurses.business.CreateNurse"
-	var errMessage errors.Op = "Something went wrong"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
 
 	_, err := n.adminBusiness.FindAdminById(nurse.CreatedBy)
 	if err != nil {
@@ -92,9 +92,9 @@ func (n *nurseBusiness) CreateNurse(nurse nurses.NurseCore) error {
 
 func (n *nurseBusiness) EditNurse(nurse nurses.NurseCore) error {
 	const op errors.Op = "nurses.business.EditNurse"
-	var errMessage errors.Op = "Something went wrong"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
 
-	_, err := n.adminBusiness.FindAdminById(nurse.CreatedBy)
+	_, err := n.adminBusiness.FindAdminById(nurse.UpdatedBy)
 	if err != nil {
 		return errors.E(err, op, errMessage, errors.KindServerError)
 	}
@@ -119,7 +119,7 @@ func (n *nurseBusiness) EditNurse(nurse nurses.NurseCore) error {
 
 func (n *nurseBusiness) EditNursePassword(id int, updatedBy int, oldPassword string, newPassword string) error {
 	const op errors.Op = "nurses.business.EditNursePassword"
-	var errMessage errors.Op = "Something went wrong"
+	var errMessage errors.ErrClientMessage = "Something went wrong"
 
 	_, err := n.adminBusiness.FindAdminById(updatedBy)
 	if err != nil {
