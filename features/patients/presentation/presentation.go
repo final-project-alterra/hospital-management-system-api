@@ -45,7 +45,7 @@ func (p *PatientPresentation) GetDetailPatient(c echo.Context) error {
 	patientId, err := strconv.Atoi(c.Param("patientId"))
 	if err != nil {
 		errMessage = "Invalid patient id"
-		return errors.E(err, op, errMessage, errors.KindBadRequest)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	patientData, err := p.business.FindPatientById(patientId)
@@ -65,18 +65,18 @@ func (p *PatientPresentation) PostPatient(c echo.Context) error {
 	if !ok {
 		err := errors.New("Invalid admin id")
 		errMessage = "Invalid admin id"
-		return errors.E(err, op, errMessage, errors.KindBadRequest)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	patient := request.CreatePatientRequest{CreatedBy: createdBy}
 	if err := c.Bind(&patient); err != nil {
 		errMessage = "Unable to parse data"
-		return errors.E(err, op, errMessage, errors.KindBadRequest)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	if err := p.validate.Struct(&patient); err != nil {
 		errMessage = "Invalid data. Makesure all data is filled correctly"
-		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindUnprocessable))
 	}
 
 	if err := p.business.CreatePatient(patient.ToPatientCore()); err != nil {
@@ -95,18 +95,18 @@ func (p *PatientPresentation) PutEditPatient(c echo.Context) error {
 	if !ok {
 		err := errors.New("Invalid admin id")
 		errMessage = "Invalid admin id"
-		return errors.E(err, op, errMessage, errors.KindBadRequest)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	patient := request.UpdatePatientRequest{UpdatedBy: updatedBy}
 	if err := c.Bind(&patient); err != nil {
 		errMessage = "Unable to parse data"
-		return errors.E(err, op, errMessage, errors.KindBadRequest)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	if err := p.validate.Struct(&patient); err != nil {
 		errMessage = "Invalid data. Makesure all field is filled correctly"
-		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindUnprocessable))
 	}
 
 	if err := p.business.EditPatient(patient.ToPatientCore()); err != nil {
@@ -126,13 +126,13 @@ func (p *PatientPresentation) DeletePatient(c echo.Context) error {
 	if !ok {
 		err := errors.New("Invalid admin id")
 		errMessage = "Invalid admin id"
-		return errors.E(err, op, errMessage, errors.KindBadRequest)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	patientId, err := strconv.Atoi(c.Param("patientId"))
 	if err != nil {
 		errMessage = "Invalid patient id"
-		return errors.E(err, op, errMessage, errors.KindBadRequest)
+		return response.Error(c, errors.E(err, op, errMessage, errors.KindBadRequest))
 	}
 
 	if err := p.business.RemovePatientById(patientId, updatedBy); err != nil {
