@@ -84,3 +84,60 @@ func (p *PatientPresentation) PostPatient(c echo.Context) error {
 	}
 	return response.Success(c, status, message, nil)
 }
+
+func (p *PatientPresentation) PutEditPatient(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success updating patient"
+	const op errors.Op = "patients.presentation.PutEditPatient"
+	var errMessage errors.ErrClientMessage
+
+	updatedBy, ok := c.Get("userId").(int)
+	if !ok {
+		err := errors.New("Invalid admin id")
+		errMessage = "Invalid admin id"
+		return errors.E(err, op, errMessage, errors.KindBadRequest)
+	}
+
+	patient := request.UpdatePatientRequest{UpdatedBy: updatedBy}
+	if err := c.Bind(&patient); err != nil {
+		errMessage = "Unable to parse data"
+		return errors.E(err, op, errMessage, errors.KindBadRequest)
+	}
+
+	if err := p.validate.Struct(&patient); err != nil {
+		errMessage = "Invalid data. Makesure all field is filled correctly"
+		return errors.E(err, op, errMessage, errors.KindUnprocessable)
+	}
+
+	if err := p.business.EditPatient(patient.ToPatientCore()); err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
+func (p *PatientPresentation) DeletePatient(c echo.Context) error {
+	status := http.StatusOK
+	message := "Success deleting patient"
+	const op errors.Op = "patients.presentation.DeletePatient"
+	var errMessage errors.ErrClientMessage
+
+	updatedBy, ok := c.Get("userId").(int)
+	if !ok {
+		err := errors.New("Invalid admin id")
+		errMessage = "Invalid admin id"
+		return errors.E(err, op, errMessage, errors.KindBadRequest)
+	}
+
+	patientId, err := strconv.Atoi(c.Param("patientId"))
+	if err != nil {
+		errMessage = "Invalid patient id"
+		return errors.E(err, op, errMessage, errors.KindBadRequest)
+	}
+
+	if err := p.business.RemovePatientById(patientId, updatedBy); err != nil {
+		return response.Error(c, errors.E(op, err))
+	}
+
+	return response.Success(c, status, message, nil)
+}
