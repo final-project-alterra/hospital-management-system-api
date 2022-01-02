@@ -2,12 +2,13 @@ package routes
 
 import (
 	"github.com/final-project-alterra/hospital-management-system-api/factory"
+	"github.com/final-project-alterra/hospital-management-system-api/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func setupAdminRoutes(e *echo.Echo, presenter *factory.Presenter) {
-	// admin := e.Group("/admins", middleware.IsAdmin())
-	admin := e.Group("/admins")
+	admin := e.Group("/admins", middleware.IsAdmin())
+	// admin := e.Group("/admins")
 
 	admin.GET("", presenter.AdminPresentation.GetAdmins)
 	admin.GET("/:adminId", presenter.AdminPresentation.GetDetailAdmin)
