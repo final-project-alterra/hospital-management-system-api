@@ -9,7 +9,7 @@ type CreatePatientRequest struct {
 	Phone     string `json:"phone"`
 	Age       int    `json:"age"`
 	Address   string `json:"address"`
-	Gender    string `json:"gender"`
+	Gender    string `json:"gender" validate:"oneof='L' 'P"`
 }
 
 type UpdatePatientRequest struct {
@@ -36,6 +36,7 @@ func (p CreatePatientRequest) ToPatientCore() patients.PatientCore {
 
 func (p UpdatePatientRequest) ToPatientCore() patients.PatientCore {
 	return patients.PatientCore{
+		ID:        p.ID,
 		UpdatedBy: p.UpdatedBy,
 		Name:      p.Name,
 		Age:       p.Age,
