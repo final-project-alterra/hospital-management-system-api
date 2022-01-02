@@ -20,7 +20,7 @@ type ErrorResponse struct {
 	Error struct {
 		Code    int    `json:"code"`
 		Message string `json:"message"`
-	}
+	} `json:"error"`
 }
 
 func Success(c echo.Context, code int, message string, data interface{}) error {
