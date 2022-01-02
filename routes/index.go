@@ -22,6 +22,8 @@ func SetupRoutes() *echo.Echo {
 
 	setupNurseRoutes(e, presenter)
 
+	setupPatientRoutes(e, presenter)
+
 	setupDoctorRoutes(e, presenter)
 	setupRoomRoutes(e, presenter)
 	setupSpecialityRoutes(e, presenter)
