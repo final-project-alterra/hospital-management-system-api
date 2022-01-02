@@ -16,6 +16,8 @@ func SetupRoutes() *echo.Echo {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 
+	setupAuthRoutes(e, presenter)
+
 	setupAdminRoutes(e, presenter)
 
 	setupNurseRoutes(e, presenter)
