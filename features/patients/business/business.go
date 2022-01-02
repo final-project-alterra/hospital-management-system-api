@@ -71,7 +71,7 @@ func (p *patientBusiness) CreatePatient(patient patients.PatientCore) error {
 func (p *patientBusiness) EditPatient(patient patients.PatientCore) error {
 	const op errors.Op = "patients.business.EditPatient"
 
-	_, err := p.adminBusiness.FindAdminById(patient.CreatedBy)
+	_, err := p.adminBusiness.FindAdminById(patient.UpdatedBy)
 	if err != nil {
 		return errors.E(err, op)
 	}
