@@ -31,6 +31,13 @@ func IsAuth() echo.MiddlewareFunc {
 		if !ok {
 			return nil, errors.New("Invalid claims")
 		}
+
+		userId, ok := claims["userId"].(float64)
+		if !ok {
+			return nil, errors.New("Invalid userId")
+		}
+
+		c.Set("userId", int(userId))
 		return claims, nil
 	}
 
@@ -77,6 +84,12 @@ func IsAdmin() echo.MiddlewareFunc {
 			return nil, errors.New("Unauthorized user!")
 		}
 
+		userId, ok := claims["userId"].(float64)
+		if !ok {
+			return nil, errors.New("Invalid userId")
+		}
+
+		c.Set("userId", int(userId))
 		return claims, nil
 	}
 
