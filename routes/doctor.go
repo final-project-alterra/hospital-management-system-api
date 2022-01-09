@@ -15,4 +15,6 @@ func setupDoctorRoutes(e *echo.Echo, presenter *factory.Presenter) {
 	doctor.PUT("", presenter.DoctorPresentation.PutEditDoctor, middleware.IsAdmin())
 	doctor.PUT("/password", presenter.DoctorPresentation.PutEditDoctorPassword, middleware.IsAdmin())
 	doctor.DELETE("/:doctorId", presenter.DoctorPresentation.DeleteDoctor, middleware.IsAdmin())
+
+	doctor.GET("/:doctorId/work-schedules", presenter.SchedulePresentation.GetDoctorWorkSchedules, middleware.IsAuth())
 }

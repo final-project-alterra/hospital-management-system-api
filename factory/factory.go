@@ -21,14 +21,19 @@ import (
 	patientsBusiness "github.com/final-project-alterra/hospital-management-system-api/features/patients/business"
 	patientsData "github.com/final-project-alterra/hospital-management-system-api/features/patients/data"
 	patientsPresentation "github.com/final-project-alterra/hospital-management-system-api/features/patients/presentation"
+
+	schedulesBusiness "github.com/final-project-alterra/hospital-management-system-api/features/schedules/business"
+	schedulesData "github.com/final-project-alterra/hospital-management-system-api/features/schedules/data"
+	schedulesPresentation "github.com/final-project-alterra/hospital-management-system-api/features/schedules/presentation"
 )
 
 type Presenter struct {
-	AuthPresentation    *authsPresentation.AuthPresetation
-	AdminPresentation   *adminsPresentation.AdminPresentation
-	DoctorPresentation  *doctorsPresentation.DoctorPresentation
-	NursePresentation   *nursesPresentation.NursePresentation
-	PatientPresentation *patientsPresentation.PatientPresentation
+	AuthPresentation     *authsPresentation.AuthPresetation
+	AdminPresentation    *adminsPresentation.AdminPresentation
+	DoctorPresentation   *doctorsPresentation.DoctorPresentation
+	NursePresentation    *nursesPresentation.NursePresentation
+	PatientPresentation  *patientsPresentation.PatientPresentation
+	SchedulePresentation *schedulesPresentation.SchedulePresentation
 }
 
 func New() *Presenter {
@@ -37,11 +42,13 @@ func New() *Presenter {
 	nurseBuilder := nursesBusiness.NewNurseBusinessBuilder()
 	authBuilder := authsBusiness.NewAuthBusinessBuilder()
 	patientBuilder := patientsBusiness.NewPatientBusinessBuilder()
+	scheduleBuilder := schedulesBusiness.NewScheduleBusinessBuilder()
 
 	adminData := adminsData.NewMySQLRepo(config.DB)
 	doctorData := doctorsData.NewMySQLRepo(config.DB)
 	nurseData := nursesData.NewMySQLRepo(config.DB)
 	patientData := patientsData.NewMySQLRepo(config.DB)
+	scheduleData := schedulesData.NewMySQLRepo(config.DB)
 
 	adminBusiness := adminBuilder.SetData(adminData).Build()
 	doctorBusiness := doctorBuilder.SetData(doctorData).SetAdminBusiness(adminBusiness).Build()
@@ -52,18 +59,26 @@ func New() *Presenter {
 		SetDoctorBusiness(doctorBusiness).
 		SetNurseBusiness(nurseBusiness).
 		Build()
+	scheduleBusiness := scheduleBuilder.
+		SetData(scheduleData).
+		SetDoctorBusiness(doctorBusiness).
+		SetNurseBusiness(nurseBusiness).
+		SetPatientBusiness(patientBusiness).
+		Build()
 
 	adminPresentation := adminsPresentation.NewAdminPresentation(adminBusiness)
 	doctorPresentation := doctorsPresentation.NewDoctorPresentation(doctorBusiness)
 	nursePresentation := nursesPresentation.NewNursePresentation(nurseBusiness)
 	patientPresentation := patientsPresentation.NewPatientPresentation(patientBusiness)
 	authPresentation := authsPresentation.NewAuthPresentation(authBusiness)
+	schedulePresentation := schedulesPresentation.NewSchedulePresentation(scheduleBusiness)
 
 	return &Presenter{
-		AuthPresentation:    authPresentation,
-		AdminPresentation:   adminPresentation,
-		DoctorPresentation:  doctorPresentation,
-		NursePresentation:   nursePresentation,
-		PatientPresentation: patientPresentation,
+		AuthPresentation:     authPresentation,
+		AdminPresentation:    adminPresentation,
+		DoctorPresentation:   doctorPresentation,
+		NursePresentation:    nursePresentation,
+		PatientPresentation:  patientPresentation,
+		SchedulePresentation: schedulePresentation,
 	}
 }

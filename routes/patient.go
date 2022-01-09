@@ -14,4 +14,6 @@ func setupPatientRoutes(e *echo.Echo, presenter *factory.Presenter) {
 	patient.POST("", presenter.PatientPresentation.PostPatient, middleware.IsAdmin())
 	patient.PUT("", presenter.PatientPresentation.PutEditPatient, middleware.IsAdmin())
 	patient.DELETE("/:patientId", presenter.PatientPresentation.DeletePatient, middleware.IsAdmin())
+
+	patient.GET("/:patientId/outpatients", presenter.SchedulePresentation.GetPatientOutpatients, middleware.IsAuth())
 }
