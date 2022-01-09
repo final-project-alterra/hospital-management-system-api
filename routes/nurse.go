@@ -15,4 +15,6 @@ func setupNurseRoutes(e *echo.Echo, presenter *factory.Presenter) {
 	nurses.PUT("", presenter.NursePresentation.PutEditNurse, middleware.IsAdmin())
 	nurses.PUT("/password", presenter.NursePresentation.PutEditNursePassword, middleware.IsAdmin())
 	nurses.DELETE("/:nurseId", presenter.NursePresentation.DeleteNurse, middleware.IsAdmin())
+
+	nurses.GET("/:nurseId/work-schedules", presenter.SchedulePresentation.GetNurseWorkSchedules, middleware.IsAuth())
 }
