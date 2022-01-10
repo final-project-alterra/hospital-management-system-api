@@ -38,7 +38,14 @@ func (r *mySQLRepository) SelectCountWorkSchedulesWaitings(ids []int) (map[int]i
 	waitings := []TotalWaiting{}
 	query := `
 		SELECT w.id, COUNT(w.id) AS total FROM work_schedules w
-		JOIN outpatients o ON (o.work_schedule_id = w.id AND o.status = ? AND w.id IN (?))
+		JOIN outpatients o 
+		ON (
+			o.work_schedule_id = w.id AND 
+			o.deleted_at IS NULL AND
+			w.deleted_at IS NULL AND
+			AND o.status = ? AND 
+			w.id IN (?)
+		)
 		GROUP BY w.id
 	`
 
@@ -270,7 +277,12 @@ func (r *mySQLRepository) SelectOutpatients(q schedules.ScheduleQuery) ([]schedu
 		WorkSchedule.nurse_id AS WorkSchedule__nurse_id, WorkSchedule.group AS WorkSchedule__group, WorkSchedule.date AS WorkSchedule__date, 
 		WorkSchedule.start_time AS WorkSchedule__start_time, WorkSchedule.end_time AS WorkSchedule__end_time FROM outpatients 
 	JOIN work_schedules WorkSchedule 
-	ON (outpatients.work_schedule_id = WorkSchedule.id AND (WorkSchedule.date BETWEEN ? AND ?))
+	ON (
+		outpatients.work_schedule_id = WorkSchedule.id AND 
+		outpatients.deleted_at IS NULL AND 
+		WorkSchedule.deleted_at IS NULL AND 
+		(WorkSchedule.date BETWEEN ? AND ?)
+	)
 	LIMIT ?
 	`
 	os := []Outpatient{}
@@ -304,7 +316,13 @@ func (r *mySQLRepository) SelectOutpatientsByPatientId(patientId int, q schedule
 		WorkSchedule.nurse_id AS WorkSchedule__nurse_id, WorkSchedule.group AS WorkSchedule__group, WorkSchedule.date AS WorkSchedule__date, 
 		WorkSchedule.start_time AS WorkSchedule__start_time, WorkSchedule.end_time AS WorkSchedule__end_time FROM outpatients 
 	JOIN work_schedules WorkSchedule 
-	ON (outpatients.work_schedule_id = WorkSchedule.id AND patient_id = ? AND (WorkSchedule.date BETWEEN ? AND ?))
+	ON (
+		outpatients.work_schedule_id = WorkSchedule.id AND 
+		outpatients.deleted_at IS NULL AND 
+		WorkSchedule.deleted_at IS NULL AND 
+		patient_id = ? AND 
+		(WorkSchedule.date BETWEEN ? AND ?)
+	)
 	LIMIT ?
 	`
 	os := []Outpatient{}
