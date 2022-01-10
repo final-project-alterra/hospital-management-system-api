@@ -96,6 +96,7 @@ func WorkScheduleOutpatient(w schedules.WorkScheduleCore) WorkScheduleOutPatient
 		ID:          w.ID,
 		StartTime:   w.StartTime,
 		EndTime:     w.EndTime,
+		Date:        w.Date,
 		Doctor:      Outpatient_Doctor{}.FromCore(w.Doctor),
 		Nurse:       Outpatient_Nurse{}.FromCore(w.Nurse),
 		Outpatients: o,
