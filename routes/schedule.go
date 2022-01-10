@@ -14,5 +14,5 @@ func setupScheduleRoutes(e *echo.Echo, presenter *factory.Presenter) {
 	schedule.PUT("", presenter.SchedulePresentation.PutEditWorkSchedule, middleware.IsAdmin())
 	schedule.DELETE("/:workScheduleId", presenter.SchedulePresentation.DeleteWorkSchedule, middleware.IsAdmin())
 
-	schedule.GET("/:workScheduleId/outpatients", presenter.SchedulePresentation.GetWorkScheduleOutpatients, middleware.IsAuth())
+	schedule.GET("/:workScheduleId", presenter.SchedulePresentation.GetWorkScheduleOutpatients, middleware.IsAuth())
 }
