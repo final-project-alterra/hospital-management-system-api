@@ -43,7 +43,7 @@ func (r *mySQLRepository) SelectCountWorkSchedulesWaitings(ids []int) (map[int]i
 			o.work_schedule_id = w.id AND 
 			o.deleted_at IS NULL AND
 			w.deleted_at IS NULL AND
-			AND o.status = ? AND 
+			o.status = ? AND 
 			w.id IN (?)
 		)
 		GROUP BY w.id
