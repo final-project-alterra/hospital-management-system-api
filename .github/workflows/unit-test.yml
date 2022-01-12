@@ -25,7 +25,7 @@ jobs:
       - name: Load env file
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
-          AWS_ENV_FILE: ${{ secrets.ENV_FILE }}
+          AWS_ENV_FILE: ${{ secrets.AWS_ENV_FILE }}
         run: |
           echo $ENV_FILE | base64 --decode > .env
           echo $AWS_ENV_FILE | base64 --decode > aws.env
