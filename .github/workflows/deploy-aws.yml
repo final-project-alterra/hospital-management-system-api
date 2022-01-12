@@ -75,7 +75,7 @@ jobs:
           port: 22
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
-          timeout: '2m'
+          timeout: '5m'
           envs: DOCKER_IMAGE,DOCKER_COMPOSE_ENDPOINT,AWS_ENV_FILE
           script: |
             cd ~/ && mkdir -p app && cd app
