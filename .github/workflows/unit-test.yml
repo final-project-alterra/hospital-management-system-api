@@ -25,6 +25,7 @@ jobs:
       - name: Load env file
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
+          AWS_ENV_FILE: ${{ secrets.ENV_FILE }}
         run: |
           echo $ENV_FILE | base64 --decode > .env
           echo $AWS_ENV_FILE | base64 --decode > aws.env
@@ -32,13 +33,21 @@ jobs:
       - name: Build application (just a smoke test)
         run: go build -v ./...
 
-      - name: Build docker image
+      - name: Build docker image for AWS
         uses: docker/build-push-action@v2
         with:
           context: .
           push: false
           file: Dockerfile.aws
-          tags: ${{ github.event.repository.name }}:latest, ${{ github.repository }}:latest
+          tags: ${{ github.event.repository.name }}:aws
+
+      - name: Build docker image for Heroku
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          file: Dockerfile
+          tags: ${{ github.event.repository.name }}:Heroku
 
       - name: Running unit test
         run: go test -v -cover ./...
