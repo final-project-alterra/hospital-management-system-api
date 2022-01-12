@@ -69,19 +69,24 @@ jobs:
         env:
           DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ github.event.repository.name }}:latest
           DOCKER_COMPOSE_ENDPOINT: 'https://raw.githubusercontent.com/final-project-alterra/hospital-management-system-api/main/docker-compose.yml'
+          AWS_ENV_FILE: ${{ secrets.AWS_ENV_FILE }}
         with:
           host: ${{ secrets.AWS_EC2_SSH_HOST }}
           port: 22
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
-          envs: DOCKER_IMAGE,DOCKER_COMPOSE_ENDPOINT
+          timeout: '2m'
+          envs: DOCKER_IMAGE,DOCKER_COMPOSE_ENDPOINT,AWS_ENV_FILE
           script: |
             cd ~/ && mkdir -p app && cd app
+
+            docker-compose stop
             docker-compose down
-
-            curl $DOCKER_COMPOSE_ENDPOINT > docker-compose.yml
-
             docker pull $DOCKER_IMAGE
             docker rmi $(docker images -f "dangling=true" -q)
 
-            docker-compose up --detatch
+            curl $DOCKER_COMPOSE_ENDPOINT > docker-compose.yml
+            echo $AWS_ENV_FILE | base64 --decode > .env
+            ls -al
+
+            docker-compose up -d
