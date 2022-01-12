@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  server:
+    image: rizadwiandhika/hospital-management-system-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.aws
+    depends_on:
+      - database
+    container_name: server-container
+    hostname: server-container
+    networks:
+      - hospital-network
+    volumes:
+      - server-volume:/files
+    ports:
+      - 80:8080
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  database:
+    image: mysql:8.0
+    container_name: mysql-container
+    hostname: mysql-container
+    networks:
+      - hospital-network
+    volumes:
+      - mysql-volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?database password not set}
+    ports:
+      - 3306:3306
+
+volumes:
+  mysql-volume:
+  server-volume:
+
+networks:
+  hospital-network:
+    driver: bridge

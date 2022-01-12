@@ -11,19 +11,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
 
+      - name: Checkout github repo source code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: go mod download
+
       - name: Load env file
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}
+          AWS_ENV_FILE: ${{ secrets.AWS_ENV_FILE }}
         run: |
-          echo "Loading..."
           echo $ENV_FILE | base64 --decode > .env
+          echo $AWS_ENV_FILE | base64 --decode > aws.env
+
+      - name: Build application (just a smoke test)
+        run: go build -v ./...
+
+      - name: Build docker image for AWS
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          file: Dockerfile.aws
+          tags: ${{ github.event.repository.name }}:aws
+
+      - name: Build docker image for Heroku
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          file: Dockerfile
+          tags: ${{ github.event.repository.name }}:Heroku
 
       - name: Running unit test
         run: go test -v -cover ./...

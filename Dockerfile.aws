@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1
+
+# Stage I - bulding the app
+FROM golang:1.17-alpine AS builder
+WORKDIR /app
+
+COPY . ./
+
+RUN go mod download
+RUN go build -o server
+
+# Stage II - copy app binary file
+FROM alpine:3.14
+WORKDIR /app
+
+COPY --from=builder /app/server ./
+COPY --from=builder /app/aws.env ./.env
+
+EXPOSE 8080
+
+CMD ["./server"]
