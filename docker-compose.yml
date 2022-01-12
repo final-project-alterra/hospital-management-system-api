@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   server:
-    image: hospital-api:latest
+    image: rizadwiandhika/hospital-management-system-api:latest
     build:
       context: .
       dockerfile: Dockerfile.aws

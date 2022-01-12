@@ -77,10 +77,11 @@ jobs:
           envs: DOCKER_IMAGE,DOCKER_COMPOSE_ENDPOINT
           script: |
             cd ~/ && mkdir -p app && cd app
+            docker-compose down
+
             curl $DOCKER_COMPOSE_ENDPOINT > docker-compose.yml
 
             docker pull $DOCKER_IMAGE
             docker rmi $(docker images -f "dangling=true" -q)
 
-            docker-compose down
-            docker-compose up
+            docker-compose up --detatch
