@@ -36,8 +36,13 @@ func IsAuth() echo.MiddlewareFunc {
 		if !ok {
 			return nil, errors.New("Invalid userId")
 		}
+		role, ok := claims["role"].(string)
+		if !ok {
+			return nil, errors.New("Invalid role")
+		}
 
 		c.Set("userId", int(userId))
+		c.Set("role", role)
 		return claims, nil
 	}
 
@@ -90,6 +95,7 @@ func IsAdmin() echo.MiddlewareFunc {
 		}
 
 		c.Set("userId", int(userId))
+		c.Set("role", "admin")
 		return claims, nil
 	}
 
