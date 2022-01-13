@@ -367,7 +367,10 @@ func (p *SchedulePresentation) PutExamineOutpatient(c echo.Context) error {
 	code := http.StatusOK
 	message := "Successfully examined outpatient"
 
+	userID := c.Get("userId").(int)
+	role := c.Get("role").(string)
 	outpatient := request.ExamineOutpatientRequest{}
+
 	if err := c.Bind(&outpatient); err != nil {
 		errMsg = "Unable to parse request body"
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
@@ -378,7 +381,7 @@ func (p *SchedulePresentation) PutExamineOutpatient(c echo.Context) error {
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindUnprocessable))
 	}
 
-	err := p.business.ExamineOutpatient(outpatient.ID)
+	err := p.business.ExamineOutpatient(outpatient.ID, userID, role)
 	if err != nil {
 		return response.Error(c, errors.E(err, op))
 	}
@@ -393,7 +396,10 @@ func (p *SchedulePresentation) PutCancelOutpatient(c echo.Context) error {
 	code := http.StatusOK
 	message := "Successfully canceled outpatient"
 
+	userID := c.Get("userId").(int)
+	role := c.Get("role").(string)
 	outpatient := request.CancelOutpatientRequest{}
+
 	if err := c.Bind(&outpatient); err != nil {
 		errMsg = "Unable to parse request body"
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
@@ -404,7 +410,7 @@ func (p *SchedulePresentation) PutCancelOutpatient(c echo.Context) error {
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindUnprocessable))
 	}
 
-	err := p.business.CancelOutpatient(outpatient.ID)
+	err := p.business.CancelOutpatient(outpatient.ID, userID, role)
 	if err != nil {
 		return response.Error(c, errors.E(err, op))
 	}
@@ -419,7 +425,10 @@ func (p *SchedulePresentation) PutFinishOutpatient(c echo.Context) error {
 	code := http.StatusOK
 	message := "Successfully finishing outpatient"
 
+	userID := c.Get("userId").(int)
+	role := c.Get("role").(string)
 	outpatient := request.FinishOutpatientRequest{}
+
 	if err := c.Bind(&outpatient); err != nil {
 		errMsg = "Unable to parse request body"
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
@@ -430,7 +439,7 @@ func (p *SchedulePresentation) PutFinishOutpatient(c echo.Context) error {
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindUnprocessable))
 	}
 
-	err := p.business.FinishOutpatient(outpatient.ToOutpatientCore())
+	err := p.business.FinishOutpatient(outpatient.ToOutpatientCore(), userID, role)
 	if err != nil {
 		return response.Error(c, errors.E(err, op))
 	}

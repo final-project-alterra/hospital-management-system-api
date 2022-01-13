@@ -88,9 +88,9 @@ type IBusiness interface {
 	CreateOutpatient(outpatient OutpatientCore) error
 
 	EditOutpatient(outpatient OutpatientCore) error // ONLY EDIT COMPLAINT
-	ExamineOutpatient(outpatientId int) error
-	FinishOutpatient(outpatient OutpatientCore) error // UpdateOutpatient + InsertPrescriptions
-	CancelOutpatient(outpatientId int) error
+	ExamineOutpatient(outpatientId int, userId int, role string) error
+	FinishOutpatient(outpatient OutpatientCore, userId int, role string) error // UpdateOutpatient + InsertPrescriptions
+	CancelOutpatient(outpatientId int, userId int, role string) error
 
 	RemoveOutpatientById(outpatientId int) error
 	RemovePatientWaitingOutpatients(patientId int) error
