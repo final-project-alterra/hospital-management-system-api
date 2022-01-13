@@ -1127,10 +1127,24 @@ func TestEditOutpatient(t *testing.T) {
 }
 
 func TestExamineOutpatient(t *testing.T) {
-	onprogress := s.OutpatientCore{Status: s.StatusOnprogress}
-	waiting := s.OutpatientCore{Status: s.StatusWaiting}
+	onprogress := s.OutpatientCore{
+		Status: s.StatusOnprogress,
+		WorkSchedule: s.WorkScheduleCore{
+			ID:     2,
+			Doctor: s.DoctorCore{ID: 2},
+			Nurse:  s.NurseCore{ID: 2},
+		},
+	}
+	waiting := s.OutpatientCore{
+		Status: s.StatusWaiting,
+		WorkSchedule: s.WorkScheduleCore{
+			ID:     1,
+			Doctor: doctor1,
+			Nurse:  nurse1,
+		},
+	}
 
-	t.Run("valid - when everything is fine", func(t *testing.T) {
+	t.Run("valid - for doctor when everything is fine", func(t *testing.T) {
 		repo.
 			On("SelectOutpatientById", anyInt).
 			Return(waiting, nil).
@@ -1149,8 +1163,61 @@ func TestExamineOutpatient(t *testing.T) {
 			Return(nil).
 			Once()
 
-		err := business.ExamineOutpatient(outpatient1.ID)
+		err := business.ExamineOutpatient(outpatient1.ID, doctor1.ID, "doctor")
 		assert.Nil(t, err)
+	})
+
+	t.Run("valid - for nurse when everything is fine", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		w := s.WorkScheduleCore{
+			Outpatients: []s.OutpatientCore{waiting},
+		}
+		repo.
+			On("SelectOutpatientsByWorkScheduleId", anyInt).
+			Return(w, nil).
+			Once()
+
+		repo.
+			On("UpdateOutpatient", any).
+			Return(nil).
+			Once()
+
+		err := business.ExamineOutpatient(outpatient1.ID, nurse1.ID, "nurse")
+		assert.Nil(t, err)
+	})
+
+	t.Run("valid - when role is unknown", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		err := business.ExamineOutpatient(outpatient1.ID, 1, "unknown")
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - for doctor that is not his schedule", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		err := business.ExamineOutpatient(outpatient1.ID, 2, "doctor")
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - for nurse that is not her schedule", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		err := business.ExamineOutpatient(outpatient1.ID, 2, "nurse")
+		assert.Error(t, err)
 	})
 
 	t.Run("valid - SelectOutpatientById error", func(t *testing.T) {
@@ -1159,7 +1226,7 @@ func TestExamineOutpatient(t *testing.T) {
 			Return(s.OutpatientCore{}, errNotFound).
 			Once()
 
-		err := business.ExamineOutpatient(outpatient1.ID)
+		err := business.ExamineOutpatient(outpatient1.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1169,7 +1236,7 @@ func TestExamineOutpatient(t *testing.T) {
 			Return(onprogress, nil).
 			Once()
 
-		err := business.ExamineOutpatient(outpatient1.ID)
+		err := business.ExamineOutpatient(outpatient1.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1181,10 +1248,10 @@ func TestExamineOutpatient(t *testing.T) {
 
 		repo.
 			On("SelectOutpatientsByWorkScheduleId", anyInt).
-			Return(s.WorkScheduleCore{}, errNotFound).
+			Return(s.WorkScheduleCore{ID: 100}, errNotFound).
 			Once()
 
-		err := business.ExamineOutpatient(outpatient1.ID)
+		err := business.ExamineOutpatient(outpatient1.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1202,7 +1269,7 @@ func TestExamineOutpatient(t *testing.T) {
 			Return(w, nil).
 			Once()
 
-		err := business.ExamineOutpatient(outpatient1.ID)
+		err := business.ExamineOutpatient(outpatient1.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1225,13 +1292,16 @@ func TestExamineOutpatient(t *testing.T) {
 			Return(errServer).
 			Once()
 
-		err := business.ExamineOutpatient(outpatient1.ID)
+		err := business.ExamineOutpatient(outpatient1.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 }
 
 func TestFinishOutpatient(t *testing.T) {
-	onprogress := s.OutpatientCore{Status: s.StatusOnprogress}
+	onprogress := s.OutpatientCore{
+		Status:       s.StatusOnprogress,
+		WorkSchedule: workSchedule1,
+	}
 	waiting := s.OutpatientCore{Status: s.StatusWaiting}
 
 	t.Run("valid - when everything is fine", func(t *testing.T) {
@@ -1245,8 +1315,28 @@ func TestFinishOutpatient(t *testing.T) {
 			Return(nil).
 			Once()
 
-		err := business.FinishOutpatient(onprogress)
+		err := business.FinishOutpatient(onprogress, doctor1.ID, "doctor")
 		assert.Nil(t, err)
+	})
+
+	t.Run("valid - when the doctor is not his work schedule", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(onprogress, nil).
+			Once()
+
+		err := business.FinishOutpatient(onprogress, 2, "doctor")
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when role is not doctor", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(onprogress, nil).
+			Once()
+
+		err := business.FinishOutpatient(onprogress, 2, "admin")
+		assert.Error(t, err)
 	})
 
 	t.Run("valid - SelectOutpatientById error", func(t *testing.T) {
@@ -1255,7 +1345,7 @@ func TestFinishOutpatient(t *testing.T) {
 			Return(s.OutpatientCore{}, errNotFound).
 			Once()
 
-		err := business.FinishOutpatient(onprogress)
+		err := business.FinishOutpatient(onprogress, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1265,7 +1355,7 @@ func TestFinishOutpatient(t *testing.T) {
 			Return(waiting, nil).
 			Once()
 
-		err := business.FinishOutpatient(waiting)
+		err := business.FinishOutpatient(waiting, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1280,16 +1370,17 @@ func TestFinishOutpatient(t *testing.T) {
 			Return(errServer).
 			Once()
 
-		err := business.FinishOutpatient(onprogress)
+		err := business.FinishOutpatient(onprogress, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
+
 }
 
 func TestCancelOutpatient(t *testing.T) {
 	onprogress := s.OutpatientCore{Status: s.StatusOnprogress}
-	waiting := s.OutpatientCore{Status: s.StatusWaiting}
+	waiting := s.OutpatientCore{Status: s.StatusWaiting, WorkSchedule: workSchedule1}
 
-	t.Run("valid - when everything is fine", func(t *testing.T) {
+	t.Run("valid - for admin when everything is fine", func(t *testing.T) {
 		repo.
 			On("SelectOutpatientById", anyInt).
 			Return(waiting, nil).
@@ -1300,8 +1391,68 @@ func TestCancelOutpatient(t *testing.T) {
 			Return(nil).
 			Once()
 
-		err := business.CancelOutpatient(waiting.ID)
+		err := business.CancelOutpatient(waiting.ID, 1, "admin")
 		assert.Nil(t, err)
+	})
+
+	t.Run("valid - for doctor when everything is fine", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		repo.
+			On("UpdateOutpatient", any).
+			Return(nil).
+			Once()
+
+		err := business.CancelOutpatient(waiting.ID, doctorCore1.ID, "doctor")
+		assert.Nil(t, err)
+	})
+
+	t.Run("valid - for nurse when everything is fine", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		repo.
+			On("UpdateOutpatient", any).
+			Return(nil).
+			Once()
+
+		err := business.CancelOutpatient(waiting.ID, nurse1.ID, "nurse")
+		assert.Nil(t, err)
+	})
+
+	t.Run("valid - when doctor is not his work schedule", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		err := business.CancelOutpatient(waiting.ID, 2, "doctor")
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when nurse is not her work schedule", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		err := business.CancelOutpatient(waiting.ID, 2, "nurse")
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when role is unknown", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		err := business.CancelOutpatient(waiting.ID, 2, "unkown")
+		assert.Error(t, err)
 	})
 
 	t.Run("valid - SelectOutpatientById error", func(t *testing.T) {
@@ -1310,7 +1461,7 @@ func TestCancelOutpatient(t *testing.T) {
 			Return(s.OutpatientCore{}, errNotFound).
 			Once()
 
-		err := business.CancelOutpatient(waiting.ID)
+		err := business.CancelOutpatient(waiting.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1320,7 +1471,7 @@ func TestCancelOutpatient(t *testing.T) {
 			Return(onprogress, nil).
 			Once()
 
-		err := business.CancelOutpatient(onprogress.ID)
+		err := business.CancelOutpatient(onprogress.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 
@@ -1335,7 +1486,7 @@ func TestCancelOutpatient(t *testing.T) {
 			Return(errServer).
 			Once()
 
-		err := business.CancelOutpatient(waiting.ID)
+		err := business.CancelOutpatient(waiting.ID, doctor1.ID, "doctor")
 		assert.Error(t, err)
 	})
 }
