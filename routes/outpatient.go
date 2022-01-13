@@ -13,8 +13,8 @@ func setupOutpatientRoutes(e *echo.Echo, presenter *factory.Presenter) {
 	outpatients.GET("/:outpatientId", presenter.SchedulePresentation.GetDetailOutpatient, middleware.IsAuth())
 	outpatients.POST("", presenter.SchedulePresentation.PostOutpatient, middleware.IsAdmin())
 	outpatients.PUT("", presenter.SchedulePresentation.PutEditOutpatient, middleware.IsAdmin())
-	outpatients.PUT("/cancel", presenter.SchedulePresentation.PutCancelOutpatient, middleware.IsAdmin())
-	outpatients.PUT("/examine", presenter.SchedulePresentation.PutExamineOutpatient, middleware.IsAdmin())
-	outpatients.PUT("/finish", presenter.SchedulePresentation.PutFinishOutpatient, middleware.IsAdmin())
+	outpatients.PUT("/cancel", presenter.SchedulePresentation.PutCancelOutpatient, middleware.IsAuth())
+	outpatients.PUT("/examine", presenter.SchedulePresentation.PutExamineOutpatient, middleware.IsAuth())
+	outpatients.PUT("/finish", presenter.SchedulePresentation.PutFinishOutpatient, middleware.IsAuth())
 	outpatients.DELETE("/:outpatientId", presenter.SchedulePresentation.DeleteOutpatient, middleware.IsAdmin())
 }
