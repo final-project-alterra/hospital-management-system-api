@@ -432,7 +432,7 @@ func (s *scheduleBusiness) EditOutpatient(outpatient schedules.OutpatientCore) e
 	return nil
 }
 
-func (s *scheduleBusiness) ExamineOutpatient(outpatientId int) error {
+func (s *scheduleBusiness) ExamineOutpatient(outpatientId int, userId int, role string) error {
 	const op errors.Op = "schedules.business.ExamineOutpatient"
 	var errMsg errors.ErrClientMessage
 
@@ -444,6 +444,24 @@ func (s *scheduleBusiness) ExamineOutpatient(outpatientId int) error {
 	if existingOutpatient.Status != schedules.StatusWaiting {
 		errMsg = "Cannot examine patient that is not waiting"
 		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}
+
+	switch role {
+	case "doctor":
+		if userId != existingOutpatient.WorkSchedule.Doctor.ID {
+			errMsg = "Only doctor of this outpatient work schedule can examine this outpatient"
+			return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
+		}
+
+	case "nurse":
+		if userId != existingOutpatient.WorkSchedule.Nurse.ID {
+			errMsg = "Only nurse of this outpatient work schedule can examine this outpatient"
+			return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
+		}
+
+	default:
+		errMsg = "Only doctor or nurse of this outpatient work schedule can examine this outpatient"
+		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
 	}
 
 	workSchedule, err := s.data.SelectOutpatientsByWorkScheduleId(existingOutpatient.WorkSchedule.ID)
@@ -468,7 +486,7 @@ func (s *scheduleBusiness) ExamineOutpatient(outpatientId int) error {
 	return nil
 }
 
-func (s *scheduleBusiness) FinishOutpatient(outpatient schedules.OutpatientCore) error {
+func (s *scheduleBusiness) FinishOutpatient(outpatient schedules.OutpatientCore, userId int, role string) error {
 	const op errors.Op = "schedules.business.FinishOutpatient"
 	var errMsg errors.ErrClientMessage
 
@@ -482,6 +500,18 @@ func (s *scheduleBusiness) FinishOutpatient(outpatient schedules.OutpatientCore)
 		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
 	}
 
+	switch role {
+	case "doctor":
+		if userId != existingOutpatient.WorkSchedule.Doctor.ID {
+			errMsg = "Only doctor of this outpatient work schedule can finish this outpatient"
+			return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
+		}
+
+	default:
+		errMsg = "Only doctor of this outpatient work schedule can finish this outpatient"
+		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
+	}
+
 	existingOutpatient.EndTime = time.Now().Format("15:04:05")
 	existingOutpatient.Status = schedules.StatusFinished
 	existingOutpatient.Prescriptions = outpatient.Prescriptions
@@ -493,7 +523,7 @@ func (s *scheduleBusiness) FinishOutpatient(outpatient schedules.OutpatientCore)
 	return nil
 }
 
-func (s *scheduleBusiness) CancelOutpatient(outpatientId int) error {
+func (s *scheduleBusiness) CancelOutpatient(outpatientId int, userId int, role string) error {
 	const op errors.Op = "schedules.business.CancelOutpatient"
 	var errMsg errors.ErrClientMessage
 
@@ -505,6 +535,25 @@ func (s *scheduleBusiness) CancelOutpatient(outpatientId int) error {
 	if existingOutpatient.Status != schedules.StatusWaiting {
 		errMsg = "Cannot cancel outpatient that is not waiting"
 		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}
+
+	switch role {
+	case "admin":
+		// just proceed to next step since admin can cancel any outpatient
+	case "doctor":
+		if userId != existingOutpatient.WorkSchedule.Doctor.ID {
+			errMsg = "Only doctor of this outpatient work schedule can cancel this outpatient"
+			return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
+		}
+	case "nurse":
+		if userId != existingOutpatient.WorkSchedule.Nurse.ID {
+			errMsg = "Only nurse of this outpatient work schedule can cancel this outpatient"
+			return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
+		}
+
+	default:
+		errMsg = "You are not authorized to cancel this outpatient"
+		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
 	}
 
 	existingOutpatient.Status = schedules.StatusCanceled
