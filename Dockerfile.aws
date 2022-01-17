@@ -13,6 +13,9 @@ RUN go build -o server
 FROM alpine:3.14
 WORKDIR /app
 
+# Add timezone package so that GORM will know there's Asia/Jakarta timezone
+RUN apk add --no-cache tzdata
+
 COPY --from=builder /app/server ./
 COPY --from=builder /app/aws.env ./.env
 
