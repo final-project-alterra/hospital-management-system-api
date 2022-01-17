@@ -1,8 +1,10 @@
 package business
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/final-project-alterra/hospital-management-system-api/config"
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
@@ -406,15 +408,35 @@ func (s *scheduleBusiness) FindOutpatientById(outpatientId int) (schedules.Outpa
 
 func (s *scheduleBusiness) CreateOutpatient(outpatient schedules.OutpatientCore) error {
 	const op errors.Op = "schedules.business.CreateOutpatient"
+	var errMsg errors.ErrClientMessage
 
-	_, err := s.data.SelectWorkScheduleById(outpatient.WorkSchedule.ID)
+	_, err := s.patientBusiness.FindPatientById(outpatient.Patient.ID)
 	if err != nil {
 		return errors.E(err, op)
 	}
 
-	_, err = s.patientBusiness.FindPatientById(outpatient.Patient.ID)
+	workSchedule, err := s.data.SelectWorkScheduleById(outpatient.WorkSchedule.ID)
 	if err != nil {
 		return errors.E(err, op)
+	}
+
+	currentTime := time.Now().In(config.GetTimeLoc())
+
+	layout := "2006-01-02T15:04:05"
+	value := fmt.Sprintf("%sT%s", workSchedule.Date, workSchedule.EndTime)
+
+	workScheduleTime, err := time.ParseInLocation(layout, value, config.GetTimeLoc())
+	if err != nil {
+		errMsg = "Something went wrong"
+		return errors.E(err, op, errMsg, errors.KindServerError)
+	}
+
+	// current time = 2021-10-10 19:30:00
+	// work schedule time = 2021-10-10 19:30:00
+	// it's considered that current time IS AFTER work schedule
+	if currentTime.After(workScheduleTime) {
+		errMsg = "Cannot add new outpatient to this workschedule, because it has ended"
+		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
 	}
 
 	outpatient.Status = schedules.StatusWaiting
@@ -488,7 +510,7 @@ func (s *scheduleBusiness) ExamineOutpatient(outpatientId int, userId int, role 
 	}
 
 	existingOutpatient.Status = schedules.StatusOnprogress
-	existingOutpatient.StartTime = time.Now().Format("15:04:05")
+	existingOutpatient.StartTime = time.Now().In(config.GetTimeLoc()).Format("15:04:05")
 
 	err = s.data.UpdateOutpatient(existingOutpatient)
 	if err != nil {
@@ -523,7 +545,7 @@ func (s *scheduleBusiness) FinishOutpatient(outpatient schedules.OutpatientCore,
 		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
 	}
 
-	existingOutpatient.EndTime = time.Now().Format("15:04:05")
+	existingOutpatient.EndTime = time.Now().In(config.GetTimeLoc()).Format("15:04:05")
 	existingOutpatient.Status = schedules.StatusFinished
 	existingOutpatient.Prescriptions = outpatient.Prescriptions
 
