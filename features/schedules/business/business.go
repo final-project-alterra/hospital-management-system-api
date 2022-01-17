@@ -228,8 +228,8 @@ func (s *scheduleBusiness) RemoveNurseFromNextWorkSchedules(nurseId int) error {
 	return nil
 }
 
-func (s *scheduleBusiness) FindOutpatietns(q schedules.ScheduleQuery) ([]schedules.OutpatientCore, error) {
-	const op errors.Op = "schedules.business.FindOutpatietns"
+func (s *scheduleBusiness) FindOutpatients(q schedules.ScheduleQuery) ([]schedules.OutpatientCore, error) {
+	const op errors.Op = "schedules.business.FindOutpatients"
 
 	outpatientsData, err := s.data.SelectOutpatients(q)
 	if err != nil {
@@ -266,8 +266,8 @@ func (s *scheduleBusiness) FindOutpatietns(q schedules.ScheduleQuery) ([]schedul
 	return outpatientsData, nil
 }
 
-func (s *scheduleBusiness) FindOutpatietnsByWorkScheduleId(workScheduleId int) (schedules.WorkScheduleCore, error) {
-	const op errors.Op = "schedules.business.FindOutpatietnsByWorkScheduleId"
+func (s *scheduleBusiness) FindOutpatientsByWorkScheduleId(workScheduleId int) (schedules.WorkScheduleCore, error) {
+	const op errors.Op = "schedules.business.FindOutpatientsByWorkScheduleId"
 
 	workSchedule, err := s.data.SelectOutpatientsByWorkScheduleId(workScheduleId)
 	if err != nil {

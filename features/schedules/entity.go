@@ -85,8 +85,8 @@ type IBusiness interface {
 	RemoveDoctorFutureWorkSchedules(doctorId int) error
 	RemoveNurseFromNextWorkSchedules(nurseId int) error
 
-	FindOutpatietns(q ScheduleQuery) ([]OutpatientCore, error)
-	FindOutpatietnsByWorkScheduleId(workScheduleId int) (WorkScheduleCore, error)
+	FindOutpatients(q ScheduleQuery) ([]OutpatientCore, error)
+	FindOutpatientsByWorkScheduleId(workScheduleId int) (WorkScheduleCore, error)
 	FindOutpatientsByPatientId(patientId int, q ScheduleQuery) ([]OutpatientCore, error)
 	FindOutpatientById(outpatientId int) (OutpatientCore, error)
 	CreateOutpatient(outpatient OutpatientCore) error

@@ -615,7 +615,7 @@ func TestRemoveNurseFromNextWorkSchedules(t *testing.T) {
 	})
 }
 
-func TestFindOutpatietns(t *testing.T) {
+func TestFindOutpatients(t *testing.T) {
 	t.Run("valid - when everything is fine", func(t *testing.T) {
 		repo.
 			On("SelectOutpatients", any).
@@ -637,7 +637,7 @@ func TestFindOutpatietns(t *testing.T) {
 			Return([]n.NurseCore{nurseCore1}, nil).
 			Once()
 
-		result, err := business.FindOutpatietns(q)
+		result, err := business.FindOutpatients(q)
 
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(result))
@@ -649,7 +649,7 @@ func TestFindOutpatietns(t *testing.T) {
 			Return([]s.OutpatientCore{}, errServer).
 			Once()
 
-		result, err := business.FindOutpatietns(q)
+		result, err := business.FindOutpatients(q)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, len(result))
@@ -666,7 +666,7 @@ func TestFindOutpatietns(t *testing.T) {
 			Return([]p.PatientCore{}, errServer).
 			Once()
 
-		result, err := business.FindOutpatietns(q)
+		result, err := business.FindOutpatients(q)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, len(result))
@@ -688,7 +688,7 @@ func TestFindOutpatietns(t *testing.T) {
 			Return([]d.DoctorCore{}, errServer).
 			Once()
 
-		result, err := business.FindOutpatietns(q)
+		result, err := business.FindOutpatients(q)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, len(result))
@@ -715,14 +715,14 @@ func TestFindOutpatietns(t *testing.T) {
 			Return([]n.NurseCore{}, errServer).
 			Once()
 
-		result, err := business.FindOutpatietns(q)
+		result, err := business.FindOutpatients(q)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, len(result))
 	})
 }
 
-func TestFindOutpatietnsByWorkScheduleId(t *testing.T) {
+func TestFindOutpatientsByWorkScheduleId(t *testing.T) {
 	t.Run("valid - when everything is fine", func(t *testing.T) {
 		repo.
 			On("SelectOutpatientsByWorkScheduleId", anyInt).
@@ -744,7 +744,7 @@ func TestFindOutpatietnsByWorkScheduleId(t *testing.T) {
 			Return([]p.PatientCore{patientCore1}, nil).
 			Once()
 
-		result, err := business.FindOutpatietnsByWorkScheduleId(1)
+		result, err := business.FindOutpatientsByWorkScheduleId(1)
 
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(result.Outpatients))
@@ -758,7 +758,7 @@ func TestFindOutpatietnsByWorkScheduleId(t *testing.T) {
 			Return(s.WorkScheduleCore{}, errNotFound).
 			Once()
 
-		result, err := business.FindOutpatietnsByWorkScheduleId(1)
+		result, err := business.FindOutpatientsByWorkScheduleId(1)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, result.ID)
@@ -776,7 +776,7 @@ func TestFindOutpatietnsByWorkScheduleId(t *testing.T) {
 			Return(d.DoctorCore{}, errNotFound).
 			Once()
 
-		result, err := business.FindOutpatietnsByWorkScheduleId(1)
+		result, err := business.FindOutpatientsByWorkScheduleId(1)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, result.ID)
@@ -799,7 +799,7 @@ func TestFindOutpatietnsByWorkScheduleId(t *testing.T) {
 			Return(n.NurseCore{}, errServer).
 			Once()
 
-		result, err := business.FindOutpatietnsByWorkScheduleId(1)
+		result, err := business.FindOutpatientsByWorkScheduleId(1)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, result.ID)
@@ -827,7 +827,7 @@ func TestFindOutpatietnsByWorkScheduleId(t *testing.T) {
 			Return([]p.PatientCore{}, errServer).
 			Once()
 
-		result, err := business.FindOutpatietnsByWorkScheduleId(1)
+		result, err := business.FindOutpatientsByWorkScheduleId(1)
 
 		assert.Error(t, err)
 		assert.Equal(t, 0, result.ID)

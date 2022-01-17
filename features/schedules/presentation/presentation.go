@@ -226,7 +226,7 @@ func (p *SchedulePresentation) GetOutpatients(c echo.Context) error {
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindUnprocessable))
 	}
 
-	outpatients, err := p.business.FindOutpatietns(query.ToScheduleQuery())
+	outpatients, err := p.business.FindOutpatients(query.ToScheduleQuery())
 	if err != nil {
 		return response.Error(c, errors.E(err, op))
 	}
@@ -279,7 +279,7 @@ func (p *SchedulePresentation) GetWorkScheduleOutpatients(c echo.Context) error 
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
 	}
 
-	workSchedule, err := p.business.FindOutpatietnsByWorkScheduleId(workScheduleID)
+	workSchedule, err := p.business.FindOutpatientsByWorkScheduleId(workScheduleID)
 	if err != nil {
 		return response.Error(c, errors.E(err, op))
 	}
