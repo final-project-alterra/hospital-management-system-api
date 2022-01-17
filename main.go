@@ -16,6 +16,7 @@ func main() {
 	}
 
 	config.LoadENV(path.Join(mainDirectory, ".env"))
+	config.InitTimeLoc(config.ENV.TIMEZONE)
 	config.ConnectDB()
 	migration.AutoMigrate()
 
