@@ -414,13 +414,12 @@ func (r *mySQLRepository) UpdateOutpatient(outpatient schedules.OutpatientCore) 
 
 	start, err := NewMyTime(outpatient.StartTime)
 	if err != nil {
-		errMsg = "Invalid time format"
-		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
+		return errors.E(err, op, errors.KindServerError)
 	}
+
 	end, err := NewMyTime(outpatient.EndTime)
 	if err != nil {
-		errMsg = "Invalid time format"
-		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
+		return errors.E(err, op, errors.KindServerError)
 	}
 
 	updatedOutpatient := Outpatient{

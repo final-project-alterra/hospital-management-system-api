@@ -13,8 +13,8 @@ type WorkSchedule struct {
 	NurseID     int
 	Group       string `gorm:"type:varchar(64)"`
 	Date        string `gorm:"type:date"`
-	StartTime   MyTime
-	EndTime     MyTime
+	StartTime   MyTime `gorm:"default:null"`
+	EndTime     MyTime `gorm:"default:null"`
 	Outpatients []Outpatient
 }
 
@@ -26,8 +26,8 @@ type Outpatient struct {
 	PatientID     int
 	Complaint     string
 	Status        int
-	StartTime     MyTime
-	EndTime       MyTime
+	StartTime     MyTime `gorm:"default:null"`
+	EndTime       MyTime `gorm:"default:null"`
 	Prescriptions []Prescription
 }
 

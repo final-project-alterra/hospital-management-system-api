@@ -18,29 +18,32 @@ type MyTime time.Time
 func NewMyTime(timeInput string) (MyTime, error) {
 	const op errors.Op = "schedules.data.NewMyTime"
 	var errMsg errors.ErrClientMessage = "Invalid time format"
-	var t time.Time
+
+	if timeInput == "" {
+		return MyTime{}, nil
+	}
 
 	times := strings.Split(timeInput, ":")
 	if len(times) != 3 {
-		return MyTime(t), errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
+		return MyTime{}, errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
 	}
 
 	hour, err := strconv.Atoi(times[0])
 	if err != nil {
-		return MyTime(t), errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
+		return MyTime{}, errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
 	}
 
 	minute, err := strconv.Atoi(times[1])
 	if err != nil {
-		return MyTime(t), errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
+		return MyTime{}, errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
 	}
 
 	second, err := strconv.Atoi(times[2])
 	if err != nil {
-		return MyTime(t), errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
+		return MyTime{}, errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindBadRequest)
 	}
 
-	t = time.Date(0, time.January, 1, hour, minute, second, 0, time.UTC)
+	t := time.Date(0, time.January, 1, hour, minute, second, 0, time.UTC)
 	return MyTime(t), nil
 }
 
@@ -64,6 +67,10 @@ func (t *MyTime) Scan(value interface{}) error {
 }
 
 func (t MyTime) Value() (driver.Value, error) {
+	t0 := MyTime{}
+	if t == t0 {
+		return nil, nil
+	}
 	return driver.Value(time.Time(t).Format(MyTimeFormat)), nil
 }
 
