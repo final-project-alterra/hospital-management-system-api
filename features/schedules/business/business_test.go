@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/final-project-alterra/hospital-management-system-api/config"
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 
 	d "github.com/final-project-alterra/hospital-management-system-api/features/doctors"
@@ -60,6 +61,9 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	config.LoadENV("../../../aws.env")
+	config.InitTimeLoc("Asia/Jakarta")
+
 	business = sb.NewScheduleBusinessBuilder().
 		SetData(&repo).
 		SetDoctorBusiness(&doctorBusiness).
@@ -88,6 +92,9 @@ func TestMain(m *testing.M) {
 		ID:          1,
 		Doctor:      doctor1,
 		Nurse:       nurse1,
+		Date:        "2100-01-01",
+		StartTime:   "00:00:00",
+		EndTime:     "12:00:00",
 		Outpatients: []s.OutpatientCore{outpatient1},
 	}
 
@@ -1032,7 +1039,24 @@ func TestCreateOutpatient(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("valid - FindPatientById error", func(t *testing.T) {
+
+		patientBusiness.
+			On("FindPatientById", anyInt).
+			Return(p.PatientCore{}, errNotFound).
+			Once()
+
+		err := business.CreateOutpatient(outpatient1)
+
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - SelectWorkScheduleById error", func(t *testing.T) {
+		patientBusiness.
+			On("FindPatientById", anyInt).
+			Return(patientCore1, nil).
+			Once()
+
 		repo.
 			On("SelectWorkScheduleById", anyInt).
 			Return(s.WorkScheduleCore{}, errNotFound).
@@ -1043,15 +1067,38 @@ func TestCreateOutpatient(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("valid - FindPatientById error", func(t *testing.T) {
+	t.Run("valid - time.ParseInLocation error", func(t *testing.T) {
+		invalidWorkschedule := workSchedule1
+		invalidWorkschedule.StartTime = ""
+		invalidWorkschedule.EndTime = ""
+
 		repo.
 			On("SelectWorkScheduleById", anyInt).
-			Return(workSchedule1, nil).
+			Return(invalidWorkschedule, nil).
 			Once()
 
 		patientBusiness.
 			On("FindPatientById", anyInt).
-			Return(p.PatientCore{}, errNotFound).
+			Return(patientCore1, nil).
+			Once()
+
+		err := business.CreateOutpatient(outpatient1)
+
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when work schedule has ended", func(t *testing.T) {
+		endedSchedule := workSchedule1
+		endedSchedule.Date = "1990-01-01"
+
+		repo.
+			On("SelectWorkScheduleById", anyInt).
+			Return(endedSchedule, nil).
+			Once()
+
+		patientBusiness.
+			On("FindPatientById", anyInt).
+			Return(patientCore1, nil).
 			Once()
 
 		err := business.CreateOutpatient(outpatient1)
