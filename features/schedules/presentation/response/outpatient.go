@@ -15,6 +15,7 @@ type OutpatientResponse struct {
 	CreatedAt time.Time          `json:"createdAt"`
 	UpdatedAt time.Time          `json:"updatedAt"`
 	Complaint string             `json:"complaint"`
+	Diagnosis string             `json:"diagnosis"`
 	Patient   Outpatient_Patient `json:"patient"`
 	Doctor    Outpatient_Doctor  `json:"doctor"`
 	Nurse     Outpatient_Nurse   `json:"nurse"`
@@ -27,6 +28,7 @@ type PatientOutpatientResponse struct {
 	StartTime string    `json:"startTime"`
 	EndTime   string    `json:"endTime"`
 	Complaint string    `json:"complaint"`
+	Diagnosis string    `json:"diagnosis"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 
@@ -54,6 +56,7 @@ type OutpatientDetailResponse struct {
 	StartTime    string                 `json:"startTime"`
 	EndTime      string                 `json:"endTime"`
 	Complaint    string                 `json:"complaint"`
+	Diagnosis    string                 `json:"diagnosis"`
 	Patient      Outpatient_Patient     `json:"patient"`
 	Doctor       Outpatient_Doctor      `json:"doctor"`
 	Nurse        Outpatient_Nurse       `json:"nurse"`
@@ -74,6 +77,7 @@ func Outpatient(o schedules.OutpatientCore) OutpatientResponse {
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
 		CreatedAt: o.CreatedAt,
 		UpdatedAt: o.UpdatedAt,
 
@@ -91,6 +95,7 @@ func PatientOutpatient(o schedules.OutpatientCore) PatientOutpatientResponse {
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
 		CreatedAt: o.CreatedAt,
 		UpdatedAt: o.UpdatedAt,
 
@@ -125,6 +130,7 @@ func OutpatientDetail(o schedules.OutpatientCore) OutpatientDetailResponse {
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
 		CreatedAt: o.CreatedAt,
 		UpdatedAt: o.UpdatedAt,
 
@@ -210,6 +216,7 @@ type Outpatient_WorkScheduleOutPatient_Outpatient struct {
 	StartTime string             `json:"startTime"`
 	EndTime   string             `json:"endTime"`
 	Complaint string             `json:"complaint"`
+	Diagnosis string             `json:"diagnosis"`
 	Patient   Outpatient_Patient `json:"patient"`
 	CreatedAt time.Time          `json:"createdAt"`
 	UpdatedAt time.Time          `json:"updatedAt"`
@@ -256,6 +263,7 @@ func (wo Outpatient_WorkScheduleOutPatient_Outpatient) FromCore(o schedules.Outp
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
 		CreatedAt: o.CreatedAt,
 		UpdatedAt: o.UpdatedAt,
 

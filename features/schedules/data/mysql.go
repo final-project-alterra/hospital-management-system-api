@@ -271,7 +271,7 @@ func (r *mySQLRepository) SelectOutpatients(q schedules.ScheduleQuery) ([]schedu
 	query := `
 	SELECT 
 		outpatients.id, outpatients.created_at, outpatients.updated_at, outpatients.deleted_at, outpatients.work_schedule_id, outpatients.patient_id, 
-		outpatients.complaint, outpatients.status, outpatients.start_time, outpatients.end_time, 
+		outpatients.complaint, outpatients.status, outpatients.start_time, outpatients.end_time, outpatients.diagnosis,
 		WorkSchedule.id AS WorkSchedule__id, WorkSchedule.created_at AS WorkSchedule__created_at, WorkSchedule.updated_at AS WorkSchedule__updated_at, 
 		WorkSchedule.deleted_at AS WorkSchedule__deleted_at, WorkSchedule.doctor_id AS WorkSchedule__doctor_id, 
 		WorkSchedule.nurse_id AS WorkSchedule__nurse_id, WorkSchedule.group AS WorkSchedule__group, WorkSchedule.date AS WorkSchedule__date, 
@@ -310,7 +310,7 @@ func (r *mySQLRepository) SelectOutpatientsByPatientId(patientId int, q schedule
 	query := `
 	SELECT 
 		outpatients.id, outpatients.created_at, outpatients.updated_at, outpatients.deleted_at, outpatients.work_schedule_id, outpatients.patient_id, 
-		outpatients.complaint, outpatients.status, outpatients.start_time, outpatients.end_time, 
+		outpatients.complaint, outpatients.status, outpatients.start_time, outpatients.end_time, outpatients.diagnosis,
 		WorkSchedule.id AS WorkSchedule__id, WorkSchedule.created_at AS WorkSchedule__created_at, WorkSchedule.updated_at AS WorkSchedule__updated_at, 
 		WorkSchedule.deleted_at AS WorkSchedule__deleted_at, WorkSchedule.doctor_id AS WorkSchedule__doctor_id, 
 		WorkSchedule.nurse_id AS WorkSchedule__nurse_id, WorkSchedule.group AS WorkSchedule__group, WorkSchedule.date AS WorkSchedule__date, 
@@ -427,6 +427,7 @@ func (r *mySQLRepository) UpdateOutpatient(outpatient schedules.OutpatientCore) 
 		WorkScheduleID: uint(outpatient.WorkSchedule.ID),
 		PatientID:      outpatient.Patient.ID,
 		Complaint:      outpatient.Complaint,
+		Diagnosis:      outpatient.Diagnosis,
 		Status:         outpatient.Status,
 		StartTime:      start,
 		EndTime:        end,

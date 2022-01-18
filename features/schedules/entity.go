@@ -13,6 +13,7 @@ type PrescriptionCore struct {
 type OutpatientCore struct {
 	ID        int
 	Complaint string
+	Diagnosis string
 	Status    int
 	StartTime string
 	EndTime   string

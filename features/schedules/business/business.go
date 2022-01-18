@@ -547,6 +547,7 @@ func (s *scheduleBusiness) FinishOutpatient(outpatient schedules.OutpatientCore,
 
 	existingOutpatient.EndTime = time.Now().In(config.GetTimeLoc()).Format("15:04:05")
 	existingOutpatient.Status = schedules.StatusFinished
+	existingOutpatient.Diagnosis = outpatient.Diagnosis
 	existingOutpatient.Prescriptions = outpatient.Prescriptions
 
 	err = s.data.UpdateOutpatient(existingOutpatient)

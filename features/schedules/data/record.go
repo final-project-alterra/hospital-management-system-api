@@ -25,6 +25,7 @@ type Outpatient struct {
 
 	PatientID     int
 	Complaint     string
+	Diagnosis     string
 	Status        int
 	StartTime     MyTime `gorm:"default:null"`
 	EndTime       MyTime `gorm:"default:null"`
@@ -65,6 +66,7 @@ func (o *Outpatient) toOutpatientCore() schedules.OutpatientCore {
 	return schedules.OutpatientCore{
 		ID:            int(o.ID),
 		Complaint:     o.Complaint,
+		Diagnosis:     o.Diagnosis,
 		Status:        o.Status,
 		StartTime:     o.StartTime.String(),
 		EndTime:       o.EndTime.String(),
