@@ -19,8 +19,7 @@ type AdminPresentation struct {
 
 func NewAdminPresentation(business admins.IBusiness) *AdminPresentation {
 	validate := validator.New()
-	_ = validate.RegisterValidation("ValidateCreateAdminBirthDate", request.ValidateCreateAdminBirthDate)
-	_ = validate.RegisterValidation("ValidateEditAdminBirthDate", request.ValidateEditAdminBirthDate)
+	_ = validate.RegisterValidation("ValidateBirthDate", request.ValidateBirthDate)
 
 	return &AdminPresentation{
 		business: business,

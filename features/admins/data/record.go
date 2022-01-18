@@ -1,6 +1,8 @@
 package data
 
 import (
+	"strings"
+
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"gorm.io/gorm"
 )
@@ -13,12 +15,12 @@ type Admin struct {
 	Creating []Admin `gorm:"foreignkey:CreatedBy"`
 	Updating []Admin `gorm:"foreignkey:UpdatedBy"`
 
-	Email     string `gorm:"type:varchar(100);unique_index"`
-	Password  string `gorm:"type:varchar(100)"`
-	Name      string `gorm:"type:varchar(100)"`
+	Email     string `gorm:"type:varchar(100);unique_index;not null"`
+	Password  string `gorm:"type:varchar(100);not null"`
+	Name      string `gorm:"type:varchar(100);not null"`
 	Phone     string `gorm:"type:varchar(100)"`
-	Gender    string `gorm:"type:varchar(1)"`
-	BirthDate string `gorm:"type:date"`
+	Gender    string `gorm:"type:varchar(1);not null"`
+	BirthDate string `gorm:"type:date;not null"`
 	Address   string
 	ImageUrl  string
 }
@@ -43,7 +45,7 @@ func (a Admin) ToAdminCore() admins.AdminCore {
 		Email:     a.Email,
 		Password:  a.Password,
 		Name:      a.Name,
-		BirthDate: a.BirthDate,
+		BirthDate: strings.Split(a.BirthDate, "T")[0],
 		ImageUrl:  a.ImageUrl,
 		Phone:     a.Phone,
 		Address:   a.Address,

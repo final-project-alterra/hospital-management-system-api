@@ -121,7 +121,7 @@ func TestFindWorkSchedules(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{{ID: 1}}, nil).
 			Once()
 
@@ -165,7 +165,7 @@ func TestFindWorkSchedules(t *testing.T) {
 		assert.Equal(t, 0, len(result))
 	})
 
-	t.Run("valid - FindDoctosrByIds error", func(t *testing.T) {
+	t.Run("valid - FindDoctorsByIds error", func(t *testing.T) {
 		repo.
 			On("SelectWorkSchedules", any).
 			Return([]s.WorkScheduleCore{workSchedule1}, nil).
@@ -177,7 +177,7 @@ func TestFindWorkSchedules(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{}, errServer).
 			Once()
 
@@ -199,7 +199,7 @@ func TestFindWorkSchedules(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{{ID: 1}}, nil).
 			Once()
 
@@ -271,7 +271,7 @@ func TestFindNurseWorkSchedules(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{{ID: 1}}, nil).
 			Once()
 
@@ -293,14 +293,14 @@ func TestFindNurseWorkSchedules(t *testing.T) {
 		assert.Equal(t, 0, len(result))
 	})
 
-	t.Run("valid - FindDoctosrByIds error", func(t *testing.T) {
+	t.Run("valid - FindDoctorsByIds error", func(t *testing.T) {
 		repo.
 			On("SelectWorkSchedulesByNurseId", anyInt, q).
 			Return([]s.WorkScheduleCore{workSchedule1}, nil).
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{}, errServer).
 			Once()
 
@@ -628,7 +628,7 @@ func TestFindOutpatients(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{doctorCore1}, nil).
 			Once()
 
@@ -672,7 +672,7 @@ func TestFindOutpatients(t *testing.T) {
 		assert.Equal(t, 0, len(result))
 	})
 
-	t.Run("valid - FindDoctosrByIds error", func(t *testing.T) {
+	t.Run("valid - FindDoctorsByIds error", func(t *testing.T) {
 		repo.
 			On("SelectOutpatients", any).
 			Return([]s.OutpatientCore{outpatient1}, nil).
@@ -684,7 +684,7 @@ func TestFindOutpatients(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{}, errServer).
 			Once()
 
@@ -706,7 +706,7 @@ func TestFindOutpatients(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{doctorCore1}, nil).
 			Once()
 
@@ -843,7 +843,7 @@ func TestFindOutpatientsByPatientId(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{doctorCore1}, nil).
 			Once()
 
@@ -870,14 +870,14 @@ func TestFindOutpatientsByPatientId(t *testing.T) {
 		assert.Equal(t, 0, len(result))
 	})
 
-	t.Run("valid - FindDoctosrByIds error", func(t *testing.T) {
+	t.Run("valid - FindDoctorsByIds error", func(t *testing.T) {
 		repo.
 			On("SelectOutpatientsByPatientId", anyInt, any).
 			Return([]s.OutpatientCore{outpatient1}, nil).
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{}, errServer).
 			Once()
 
@@ -894,7 +894,7 @@ func TestFindOutpatientsByPatientId(t *testing.T) {
 			Once()
 
 		doctorBusiness.
-			On("FindDoctosrByIds", anySliceInt).
+			On("FindDoctorsByIds", anySliceInt).
 			Return([]d.DoctorCore{doctorCore1}, nil).
 			Once()
 

@@ -8,21 +8,21 @@ import (
 )
 
 type CreateWorkScheduleRequest struct {
-	DoctorID  int    `json:"doctorId" validate:"gt=0"`
-	NurseID   int    `json:"nurseId" validate:"gt=0"`
+	DoctorID  int    `json:"doctorId" validate:"required,gt=0"`
+	NurseID   int    `json:"nurseId" validate:"required,gt=0"`
 	StartTime string `json:"startTime" validate:"required,ValidateCreateScheduleTime"`
 	EndTime   string `json:"endTime" validate:"required"`
 
-	StartDate string `json:"startDate" validate:"ValidateCreateScheduleDate"`
+	StartDate string `json:"startDate" validate:"required,ValidateCreateScheduleDate"`
 	EndDate   string `json:"endDate"`
-	Repeat    string `json:"repeat" validate:"oneof='no-repeat' 'daily' 'weekly' 'monthly'"`
+	Repeat    string `json:"repeat" validate:"required,oneof='no-repeat' 'daily' 'weekly' 'monthly'"`
 }
 
 type UpdateWorkScheduleRequest struct {
-	ID        int    `json:"id" validate:"gt=0"`
-	DoctorID  int    `json:"doctorId" validate:"gt=0"`
-	NurseID   int    `json:"nurseId" validate:"gt=0"`
-	Date      string `json:"date" validate:"ValidateUpdateScheduleDate"`
+	ID        int    `json:"id" validate:"required,gt=0"`
+	DoctorID  int    `json:"doctorId" validate:"required,gt=0"`
+	NurseID   int    `json:"nurseId" validate:"required,gt=0"`
+	Date      string `json:"date" validate:"required,ValidateUpdateScheduleDate"`
 	StartTime string `json:"startTime" validate:"required,ValidateUpdateScheduleTime"`
 	EndTime   string `json:"endTime" validate:"required"`
 }

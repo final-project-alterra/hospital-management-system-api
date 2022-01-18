@@ -23,7 +23,7 @@ func (d *doctorBusiness) FindDoctors() ([]doctors.DoctorCore, error) {
 	return doctorsData, nil
 }
 
-func (d *doctorBusiness) FindDoctosrByIds(ids []int) ([]doctors.DoctorCore, error) {
+func (d *doctorBusiness) FindDoctorsByIds(ids []int) ([]doctors.DoctorCore, error) {
 	const op errors.Op = "doctors.business.FindDoctosrByIds"
 
 	doctorsData, err := d.data.SelectDoctorsByIds(ids)

@@ -9,24 +9,24 @@ import (
 
 type WorkSchedule struct {
 	gorm.Model
-	DoctorID    int
-	NurseID     int
+	DoctorID    int    `gorm:"not null"`
+	NurseID     int    `gorm:"not null"`
 	Group       string `gorm:"type:varchar(64)"`
-	Date        string `gorm:"type:date"`
-	StartTime   MyTime `gorm:"default:null"`
-	EndTime     MyTime `gorm:"default:null"`
+	Date        string `gorm:"type:date;not null"`
+	StartTime   MyTime `gorm:"not null"`
+	EndTime     MyTime `gorm:"not null"`
 	Outpatients []Outpatient
 }
 
 type Outpatient struct {
 	gorm.Model
-	WorkScheduleID uint
+	WorkScheduleID uint `gorm:"not null"`
 	WorkSchedule   WorkSchedule
 
-	PatientID     int
+	PatientID     int `gorm:"not null"`
 	Complaint     string
 	Diagnosis     string
-	Status        int
+	Status        int    `gorm:"not null"`
 	StartTime     MyTime `gorm:"default:null"`
 	EndTime       MyTime `gorm:"default:null"`
 	Prescriptions []Prescription
@@ -34,7 +34,7 @@ type Outpatient struct {
 
 type Prescription struct {
 	gorm.Model
-	OutpatientID uint
+	OutpatientID uint `gorm:"not null"`
 
 	Medicine    string `gorm:"type:varchar(64)"`
 	Instruction string

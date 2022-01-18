@@ -758,7 +758,7 @@ func (s *scheduleBusiness) findDoctorsData(ids []int) (map[int]schedules.DoctorC
 	const op errors.Op = "schedules.business.findDoctorsData"
 
 	doctorsMap := make(map[int]schedules.DoctorCore)
-	doctorsData, err := s.doctorBusiness.FindDoctosrByIds(ids)
+	doctorsData, err := s.doctorBusiness.FindDoctorsByIds(ids)
 	if err != nil {
 		return map[int]schedules.DoctorCore{}, errors.E(err, op)
 	}

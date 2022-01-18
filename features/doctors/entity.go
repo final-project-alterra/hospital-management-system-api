@@ -38,7 +38,7 @@ type RoomCore struct {
 
 type IBusiness interface {
 	FindDoctors() ([]DoctorCore, error)
-	FindDoctosrByIds(ids []int) ([]DoctorCore, error)
+	FindDoctorsByIds(ids []int) ([]DoctorCore, error)
 	FindDoctorById(id int) (DoctorCore, error)
 	FindDoctorByEmail(email string) (DoctorCore, error)
 	CreateDoctor(doctor DoctorCore) error

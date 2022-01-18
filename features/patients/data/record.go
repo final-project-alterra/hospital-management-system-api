@@ -1,6 +1,8 @@
 package data
 
 import (
+	"strings"
+
 	"github.com/final-project-alterra/hospital-management-system-api/features/patients"
 	"gorm.io/gorm"
 )
@@ -9,11 +11,11 @@ type Patient struct {
 	gorm.Model
 	CreatedBy int
 	UpdatedBy int
-	NIK       string `gorm:"unique_index"`
-	Name      string `gorm:"type:varchar(64)"`
+	NIK       string `gorm:"unique_index;not null"`
+	Name      string `gorm:"type:varchar(64);not null"`
 	Phone     string `gorm:"type:varchar(16)"`
-	Gender    string `gorm:"type:varchar(1)"`
-	BirthDate string `gorm:"type:date"`
+	Gender    string `gorm:"type:varchar(1);not null"`
+	BirthDate string `gorm:"type:date;not null"`
 	Address   string
 }
 
@@ -24,7 +26,7 @@ func (p Patient) toPatientCore() patients.PatientCore {
 		UpdatedBy: p.UpdatedBy,
 		NIK:       p.NIK,
 		Name:      p.Name,
-		BirthDate: p.BirthDate,
+		BirthDate: strings.Split(p.BirthDate, "T")[0],
 		Phone:     p.Phone,
 		Address:   p.Address,
 		Gender:    p.Gender,
