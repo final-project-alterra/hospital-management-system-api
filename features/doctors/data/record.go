@@ -15,14 +15,14 @@ type Doctor struct {
 	Speciality   Speciality
 	Room         Room
 
-	Email    string `gorm:"type:varchar(64);unique"`
-	Password string `gorm:"type:varchar(128)"`
-	Name     string `gorm:"type:varchar(64)"`
-	Phone    string `gorm:"type:varchar(14)"`
-	Gender   string `gorm:"type:varchar(1)"`
-	Age      int
-	ImageUrl string
-	Address  string
+	Email     string `gorm:"type:varchar(64);unique"`
+	Password  string `gorm:"type:varchar(128)"`
+	Name      string `gorm:"type:varchar(64)"`
+	Phone     string `gorm:"type:varchar(14)"`
+	Gender    string `gorm:"type:varchar(1)"`
+	BirthDate string `gorm:"type:date"`
+	ImageUrl  string
+	Address   string
 }
 
 type Speciality struct {
@@ -49,7 +49,7 @@ func (d Doctor) ToDoctorCore() doctors.DoctorCore {
 		Email:     d.Email,
 		Password:  d.Password,
 		Name:      d.Name,
-		Age:       d.Age,
+		BirthDate: d.BirthDate,
 		ImageUrl:  d.ImageUrl,
 		Phone:     d.Phone,
 		Address:   d.Address,

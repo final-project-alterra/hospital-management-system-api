@@ -18,7 +18,13 @@ type NursePresentation struct {
 }
 
 func NewNursePresentation(business nurses.IBusiness) *NursePresentation {
-	return &NursePresentation{business, validator.New()}
+	validate := validator.New()
+	_ = validate.RegisterValidation("ValidateBirthDate", request.ValidateBirthDate)
+
+	return &NursePresentation{
+		business: business,
+		validate: validate,
+	}
 }
 
 func (np *NursePresentation) GetNurses(c echo.Context) error {

@@ -144,7 +144,7 @@ func (d *doctorBusiness) EditDoctor(doctor doctors.DoctorCore) error {
 	existingDoctor.Room.ID = doctor.Room.ID
 	existingDoctor.Speciality.ID = doctor.Speciality.ID
 	existingDoctor.Name = doctor.Name
-	existingDoctor.Age = doctor.Age
+	existingDoctor.BirthDate = doctor.BirthDate
 	existingDoctor.Address = doctor.Address
 	existingDoctor.Phone = doctor.Phone
 	existingDoctor.Gender = doctor.Gender

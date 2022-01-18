@@ -83,7 +83,7 @@ func (p *patientBusiness) EditPatient(patient patients.PatientCore) error {
 
 	existingPatient.UpdatedBy = patient.UpdatedBy
 	existingPatient.Name = patient.Name
-	existingPatient.Age = patient.Age
+	existingPatient.BirthDate = patient.BirthDate
 	existingPatient.Phone = patient.Phone
 	existingPatient.Address = patient.Address
 	existingPatient.Gender = patient.Gender

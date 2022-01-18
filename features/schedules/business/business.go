@@ -295,16 +295,16 @@ func (s *scheduleBusiness) FindOutpatientsByWorkScheduleId(workScheduleId int) (
 		Email:     doctor.Email,
 		Phone:     doctor.Phone,
 		Specialty: doctor.Speciality.Name,
-		Age:       doctor.Age,
+		BirthDate: doctor.BirthDate,
 		Gender:    doctor.Gender,
 	}
 	nurseCore := schedules.NurseCore{
-		ID:     nurse.ID,
-		Name:   nurse.Name,
-		Email:  nurse.Email,
-		Phone:  nurse.Phone,
-		Age:    nurse.Age,
-		Gender: nurse.Gender,
+		ID:        nurse.ID,
+		Name:      nurse.Name,
+		Email:     nurse.Email,
+		Phone:     nurse.Phone,
+		BirthDate: nurse.BirthDate,
+		Gender:    nurse.Gender,
 	}
 
 	workSchedule.Doctor = doctorCore
@@ -373,12 +373,12 @@ func (s *scheduleBusiness) FindOutpatientById(outpatientId int) (schedules.Outpa
 	}
 
 	patient := schedules.PatientCore{
-		ID:     patientData.ID,
-		NIK:    patientData.NIK,
-		Name:   patientData.Name,
-		Phone:  patientData.Phone,
-		Age:    patientData.Age,
-		Gender: patientData.Gender,
+		ID:        patientData.ID,
+		NIK:       patientData.NIK,
+		Name:      patientData.Name,
+		Phone:     patientData.Phone,
+		BirthDate: patientData.BirthDate,
+		Gender:    patientData.Gender,
 	}
 	doctor := schedules.DoctorCore{
 		ID:        doctorData.ID,
@@ -386,17 +386,17 @@ func (s *scheduleBusiness) FindOutpatientById(outpatientId int) (schedules.Outpa
 		Name:      doctorData.Name,
 		Specialty: doctorData.Speciality.Name,
 		Phone:     doctorData.Phone,
-		Age:       doctorData.Age,
+		BirthDate: doctorData.BirthDate,
 		Gender:    doctorData.Gender,
 		Room:      schedules.RoomCore{ID: doctorData.Room.ID, Code: doctorData.Room.Code, Floor: doctorData.Room.Floor},
 	}
 	nurse := schedules.NurseCore{
-		ID:     nurseData.ID,
-		Email:  nurseData.Email,
-		Name:   nurseData.Name,
-		Phone:  nurseData.Phone,
-		Age:    nurseData.Age,
-		Gender: nurseData.Gender,
+		ID:        nurseData.ID,
+		Email:     nurseData.Email,
+		Name:      nurseData.Name,
+		Phone:     nurseData.Phone,
+		BirthDate: nurseData.BirthDate,
+		Gender:    nurseData.Gender,
 	}
 
 	outpatientData.Patient = patient
@@ -770,7 +770,7 @@ func (s *scheduleBusiness) findDoctorsData(ids []int) (map[int]schedules.DoctorC
 			Email:     d.Email,
 			Phone:     d.Phone,
 			Specialty: d.Speciality.Name,
-			Age:       d.Age,
+			BirthDate: d.BirthDate,
 			Gender:    d.Gender,
 			Room:      schedules.RoomCore{ID: d.Room.ID, Code: d.Room.Code, Floor: d.Room.Floor},
 		}
@@ -790,12 +790,12 @@ func (s *scheduleBusiness) findNursesData(ids []int) (map[int]schedules.NurseCor
 
 	for _, n := range nursesData {
 		nursesMap[n.ID] = schedules.NurseCore{
-			ID:     n.ID,
-			Name:   n.Name,
-			Email:  n.Email,
-			Phone:  n.Phone,
-			Age:    n.Age,
-			Gender: n.Gender,
+			ID:        n.ID,
+			Name:      n.Name,
+			Email:     n.Email,
+			Phone:     n.Phone,
+			BirthDate: n.BirthDate,
+			Gender:    n.Gender,
 		}
 	}
 
@@ -813,12 +813,12 @@ func (s *scheduleBusiness) findPatientData(ids []int) (map[int]schedules.Patient
 
 	for _, p := range patientsData {
 		patientsMap[p.ID] = schedules.PatientCore{
-			ID:     p.ID,
-			NIK:    p.NIK,
-			Name:   p.Name,
-			Phone:  p.Phone,
-			Age:    p.Age,
-			Gender: p.Gender,
+			ID:        p.ID,
+			NIK:       p.NIK,
+			Name:      p.Name,
+			Phone:     p.Phone,
+			BirthDate: p.BirthDate,
+			Gender:    p.Gender,
 		}
 	}
 

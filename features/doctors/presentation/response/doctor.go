@@ -19,13 +19,13 @@ type DoctorResponse struct {
 	Speciality DoctorSpecialityResponse `json:"speciality"`
 	Room       DoctorRoomResponse       `json:"room"`
 
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	ImageUrl string `json:"image_url"`
-	Address  string `json:"address"`
-	Age      int    `json:"age"`
-	Phone    string `json:"phone"`
-	Gender   string `json:"gender"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	ImageUrl  string `json:"image_url"`
+	Address   string `json:"address"`
+	BirthDate string `json:"birthDate"`
+	Phone     string `json:"phone"`
+	Gender    string `json:"gender"`
 }
 
 func DetailDoctor(d doctors.DoctorCore) DoctorResponse {
@@ -42,13 +42,13 @@ func DetailDoctor(d doctors.DoctorCore) DoctorResponse {
 			Code:  d.Room.Code,
 		},
 
-		Name:     d.Name,
-		Email:    d.Email,
-		ImageUrl: d.ImageUrl,
-		Address:  d.Address,
-		Age:      d.Age,
-		Phone:    d.Phone,
-		Gender:   d.Gender,
+		Name:      d.Name,
+		Email:     d.Email,
+		ImageUrl:  d.ImageUrl,
+		Address:   d.Address,
+		BirthDate: d.BirthDate,
+		Phone:     d.Phone,
+		Gender:    d.Gender,
 	}
 }
 

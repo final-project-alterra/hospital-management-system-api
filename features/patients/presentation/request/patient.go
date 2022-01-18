@@ -7,7 +7,7 @@ type CreatePatientRequest struct {
 	NIK       string `json:"nik" validate:"required"`
 	Name      string `json:"name"`
 	Phone     string `json:"phone"`
-	Age       int    `json:"age"`
+	BirthDate string `json:"birthDate" validate:"required,ValidateBirthDate"`
 	Address   string `json:"address"`
 	Gender    string `json:"gender" validate:"oneof='L' 'P"`
 }
@@ -17,7 +17,7 @@ type UpdatePatientRequest struct {
 	ID        int    `json:"id" validate:"gt=0"`
 	Name      string `json:"name"`
 	Phone     string `json:"phone"`
-	Age       int    `json:"age"`
+	BirthDate string `json:"age" validate:"required,ValidateBirthDate"`
 	Address   string `json:"address"`
 	Gender    string `json:"gender" validate:"oneof='L' 'P"`
 }
@@ -27,7 +27,7 @@ func (p CreatePatientRequest) ToPatientCore() patients.PatientCore {
 		CreatedBy: p.CreatedBy,
 		NIK:       p.NIK,
 		Name:      p.Name,
-		Age:       p.Age,
+		BirthDate: p.BirthDate,
 		Phone:     p.Phone,
 		Address:   p.Address,
 		Gender:    p.Gender,
@@ -39,7 +39,7 @@ func (p UpdatePatientRequest) ToPatientCore() patients.PatientCore {
 		ID:        p.ID,
 		UpdatedBy: p.UpdatedBy,
 		Name:      p.Name,
-		Age:       p.Age,
+		BirthDate: p.BirthDate,
 		Phone:     p.Phone,
 		Address:   p.Address,
 		Gender:    p.Gender,

@@ -183,12 +183,12 @@ func ListPrescription(ps []schedules.PrescriptionCore) []PrescriptionResponse {
 
 /* Nested struct for outpatients */
 type Outpatient_Patient struct {
-	ID     int    `json:"id"`
-	NIK    string `json:"nik"`
-	Name   string `json:"name"`
-	Phone  string `json:"phone"`
-	Age    int    `json:"age"`
-	Gender string `json:"gender"`
+	ID        int    `json:"id"`
+	NIK       string `json:"nik"`
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	BirthDate string `json:"birthDate"`
+	Gender    string `json:"gender"`
 }
 
 type Outpatient_Doctor struct {
@@ -197,17 +197,17 @@ type Outpatient_Doctor struct {
 	Name      string `json:"name"`
 	Specialty string `json:"specialty"`
 	Phone     string `json:"phone"`
-	Age       int    `json:"age"`
+	BirthDate string `json:"birthDate"`
 	Gender    string `json:"gender"`
 }
 
 type Outpatient_Nurse struct {
-	ID     int    `json:"id"`
-	Email  string `json:"email"`
-	Name   string `json:"name"`
-	Phone  string `json:"phone"`
-	Age    int    `json:"age"`
-	Gender string `json:"gender"`
+	ID        int    `json:"id"`
+	Email     string `json:"email"`
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	BirthDate string `json:"birthDate"`
+	Gender    string `json:"gender"`
 }
 
 type Outpatient_WorkScheduleOutPatient_Outpatient struct {
@@ -227,7 +227,7 @@ func (p Outpatient_Patient) FromCore(c schedules.PatientCore) Outpatient_Patient
 	p.NIK = c.NIK
 	p.Name = c.Name
 	p.Phone = c.Phone
-	p.Age = c.Age
+	p.BirthDate = c.BirthDate
 	p.Gender = c.Gender
 
 	return p
@@ -239,7 +239,7 @@ func (d Outpatient_Doctor) FromCore(c schedules.DoctorCore) Outpatient_Doctor {
 	d.Name = c.Name
 	d.Specialty = c.Specialty
 	d.Phone = c.Phone
-	d.Age = c.Age
+	d.BirthDate = c.BirthDate
 	d.Gender = c.Gender
 
 	return d
@@ -250,7 +250,7 @@ func (n Outpatient_Nurse) FromCore(c schedules.NurseCore) Outpatient_Nurse {
 	n.Email = c.Email
 	n.Name = c.Name
 	n.Phone = c.Phone
-	n.Age = c.Age
+	n.BirthDate = c.BirthDate
 	n.Gender = c.Gender
 
 	return n

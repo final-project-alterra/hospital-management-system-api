@@ -108,7 +108,7 @@ func (ab *adminBusiness) EditAdmin(admin admins.AdminCore) error {
 
 	existingAdmin.UpdatedBy = admin.UpdatedBy
 	existingAdmin.Name = admin.Name
-	existingAdmin.Age = admin.Age
+	existingAdmin.BirthDate = admin.BirthDate
 	existingAdmin.Address = admin.Address
 	existingAdmin.Phone = admin.Phone
 	existingAdmin.Gender = admin.Gender

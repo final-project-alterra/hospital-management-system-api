@@ -9,7 +9,7 @@ type AdminCore struct {
 	Email     string
 	Password  string
 	Name      string
-	Age       int
+	BirthDate string
 	ImageUrl  string
 	Phone     string
 	Address   string

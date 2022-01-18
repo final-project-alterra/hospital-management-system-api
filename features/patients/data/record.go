@@ -13,7 +13,7 @@ type Patient struct {
 	Name      string `gorm:"type:varchar(64)"`
 	Phone     string `gorm:"type:varchar(16)"`
 	Gender    string `gorm:"type:varchar(1)"`
-	Age       int
+	BirthDate string `gorm:"type:date"`
 	Address   string
 }
 
@@ -24,7 +24,7 @@ func (p Patient) toPatientCore() patients.PatientCore {
 		UpdatedBy: p.UpdatedBy,
 		NIK:       p.NIK,
 		Name:      p.Name,
-		Age:       p.Age,
+		BirthDate: p.BirthDate,
 		Phone:     p.Phone,
 		Address:   p.Address,
 		Gender:    p.Gender,

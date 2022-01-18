@@ -13,14 +13,14 @@ type Admin struct {
 	Creating []Admin `gorm:"foreignkey:CreatedBy"`
 	Updating []Admin `gorm:"foreignkey:UpdatedBy"`
 
-	Email    string `gorm:"type:varchar(100);unique_index"`
-	Password string `gorm:"type:varchar(100)"`
-	Name     string `gorm:"type:varchar(100)"`
-	Phone    string `gorm:"type:varchar(100)"`
-	Gender   string `gorm:"type:varchar(1)"`
-	Age      int
-	Address  string
-	ImageUrl string
+	Email     string `gorm:"type:varchar(100);unique_index"`
+	Password  string `gorm:"type:varchar(100)"`
+	Name      string `gorm:"type:varchar(100)"`
+	Phone     string `gorm:"type:varchar(100)"`
+	Gender    string `gorm:"type:varchar(1)"`
+	BirthDate string `gorm:"type:date"`
+	Address   string
+	ImageUrl  string
 }
 
 func (a Admin) ToAdminCore() admins.AdminCore {
@@ -43,7 +43,7 @@ func (a Admin) ToAdminCore() admins.AdminCore {
 		Email:     a.Email,
 		Password:  a.Password,
 		Name:      a.Name,
-		Age:       a.Age,
+		BirthDate: a.BirthDate,
 		ImageUrl:  a.ImageUrl,
 		Phone:     a.Phone,
 		Address:   a.Address,

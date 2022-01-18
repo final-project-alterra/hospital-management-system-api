@@ -91,7 +91,7 @@ func (r *mySQLRepo) InsertNurse(nurse nurses.NurseCore) error {
 		Email:     nurse.Email,
 		Password:  nurse.Password,
 		Name:      nurse.Name,
-		Age:       nurse.Age,
+		BirthDate: nurse.BirthDate,
 		ImageUrl:  nurse.ImageUrl,
 		Phone:     nurse.Phone,
 		Address:   nurse.Address,
@@ -117,14 +117,14 @@ func (r *mySQLRepo) UpdateNurse(nurse nurses.NurseCore) error {
 		CreatedBy: nurse.CreatedBy,
 		UpdatedBy: nurse.UpdatedBy,
 
-		Email:    nurse.Email,
-		Name:     nurse.Name,
-		Age:      nurse.Age,
-		ImageUrl: nurse.ImageUrl,
-		Phone:    nurse.Phone,
-		Address:  nurse.Address,
-		Password: nurse.Password,
-		Gender:   nurse.Gender,
+		Email:     nurse.Email,
+		Name:      nurse.Name,
+		BirthDate: nurse.BirthDate,
+		ImageUrl:  nurse.ImageUrl,
+		Phone:     nurse.Phone,
+		Address:   nurse.Address,
+		Password:  nurse.Password,
+		Gender:    nurse.Gender,
 	}
 
 	err := r.db.Save(&updatedNurse).Error

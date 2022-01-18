@@ -107,14 +107,14 @@ func (r *mySQLRepo) InsertDoctor(doctor doctors.DoctorCore) error {
 		RoomID:       uint(doctor.Room.ID),
 		CreatedBy:    doctor.CreatedBy,
 
-		Name:     doctor.Name,
-		Email:    doctor.Email,
-		Password: doctor.Password,
-		Phone:    doctor.Phone,
-		Gender:   doctor.Gender,
-		Age:      doctor.Age,
-		ImageUrl: doctor.ImageUrl,
-		Address:  doctor.Address,
+		Name:      doctor.Name,
+		Email:     doctor.Email,
+		Password:  doctor.Password,
+		Phone:     doctor.Phone,
+		Gender:    doctor.Gender,
+		BirthDate: doctor.BirthDate,
+		ImageUrl:  doctor.ImageUrl,
+		Address:   doctor.Address,
 	}
 	err := r.db.Create(&doctorRecord).Error
 	if err != nil {
@@ -136,14 +136,14 @@ func (r *mySQLRepo) UpdateDoctor(doctor doctors.DoctorCore) error {
 		CreatedBy:    doctor.CreatedBy,
 		UpdatedBy:    doctor.UpdatedBy,
 
-		Name:     doctor.Name,
-		Email:    doctor.Email,
-		Password: doctor.Password,
-		Phone:    doctor.Phone,
-		Gender:   doctor.Gender,
-		Age:      doctor.Age,
-		ImageUrl: doctor.ImageUrl,
-		Address:  doctor.Address,
+		Name:      doctor.Name,
+		Email:     doctor.Email,
+		Password:  doctor.Password,
+		Phone:     doctor.Phone,
+		Gender:    doctor.Gender,
+		BirthDate: doctor.BirthDate,
+		ImageUrl:  doctor.ImageUrl,
+		Address:   doctor.Address,
 	}
 
 	err := r.db.Save(updatedDoctor).Error
