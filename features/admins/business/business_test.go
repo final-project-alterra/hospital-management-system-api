@@ -41,7 +41,7 @@ func TestMain(m *testing.M) {
 		Email:     "riza@mail.com",
 		Password:  "admin",
 		Name:      "Riza",
-		Age:       20,
+		BirthDate: "1990-10-23",
 		ImageUrl:  "google.com/img.jpg",
 		Phone:     "08128288282828",
 		Address:   "Jalan baru",
