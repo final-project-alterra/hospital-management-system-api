@@ -175,8 +175,8 @@ func (_m *IBusiness) FindDoctors() ([]doctors.DoctorCore, error) {
 	return r0, r1
 }
 
-// FindDoctosrByIds provides a mock function with given fields: ids
-func (_m *IBusiness) FindDoctosrByIds(ids []int) ([]doctors.DoctorCore, error) {
+// FindDoctorsByIds provides a mock function with given fields: ids
+func (_m *IBusiness) FindDoctorsByIds(ids []int) ([]doctors.DoctorCore, error) {
 	ret := _m.Called(ids)
 
 	var r0 []doctors.DoctorCore

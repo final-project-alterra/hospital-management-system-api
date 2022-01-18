@@ -95,7 +95,7 @@ func TestDoctosrByIds(t *testing.T) {
 			Return([]doctors.DoctorCore{doctorHan}, nil).
 			Once()
 
-		result, err := doctorBusiness.FindDoctosrByIds([]int{1})
+		result, err := doctorBusiness.FindDoctorsByIds([]int{1})
 
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(result))
@@ -107,7 +107,7 @@ func TestDoctosrByIds(t *testing.T) {
 			Return([]doctors.DoctorCore{}, errServer).
 			Once()
 
-		result, err := doctorBusiness.FindDoctosrByIds([]int{1})
+		result, err := doctorBusiness.FindDoctorsByIds([]int{1})
 
 		assert.Error(t, err)
 		assert.Equal(t, errors.KindServerError, errors.Kind(err))
