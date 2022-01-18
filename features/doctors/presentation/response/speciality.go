@@ -1,16 +1,24 @@
 package response
 
-import "github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+import (
+	"time"
+
+	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+)
 
 type SpecialityResponse struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func DetailSpeciality(s doctors.SpecialityCore) SpecialityResponse {
 	return SpecialityResponse{
-		ID:   s.ID,
-		Name: s.Name,
+		ID:        s.ID,
+		Name:      s.Name,
+		CreatedAt: s.CreatedAt,
+		UpdatedAt: s.UpdatedAt,
 	}
 }
 

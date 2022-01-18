@@ -1,16 +1,22 @@
 package response
 
-import "github.com/final-project-alterra/hospital-management-system-api/features/nurses"
+import (
+	"time"
+
+	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
+)
 
 type NurseResponse struct {
-	ID        int    `json:"id"`
-	Email     string `json:"email"`
-	Name      string `json:"name"`
-	BirthDate string `json:"birthDate"`
-	ImageUrl  string `json:"imageUrl"`
-	Phone     string `json:"phone"`
-	Address   string `json:"address"`
-	Gender    string `json:"gender"`
+	ID        int       `json:"id"`
+	Email     string    `json:"email"`
+	Name      string    `json:"name"`
+	BirthDate string    `json:"birthDate"`
+	ImageUrl  string    `json:"imageUrl"`
+	Phone     string    `json:"phone"`
+	Address   string    `json:"address"`
+	Gender    string    `json:"gender"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func DetailNurse(n nurses.NurseCore) NurseResponse {
@@ -23,6 +29,8 @@ func DetailNurse(n nurses.NurseCore) NurseResponse {
 		Phone:     n.Phone,
 		Address:   n.Address,
 		Gender:    n.Gender,
+		CreatedAt: n.CreatedAt,
+		UpdatedAt: n.UpdatedAt,
 	}
 }
 
