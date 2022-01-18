@@ -3,24 +3,24 @@ package response
 import "github.com/final-project-alterra/hospital-management-system-api/features/patients"
 
 type PatientResponse struct {
-	ID      int    `json:"id"`
-	NIK     string `json:"nik"`
-	Name    string `json:"name"`
-	Age     int    `json:"age"`
-	Phone   string `json:"phone"`
-	Address string `json:"address"`
-	Gender  string `json:"gender"`
+	ID        int    `json:"id"`
+	NIK       string `json:"nik"`
+	Name      string `json:"name"`
+	BirthDate string `json:"birthDate"`
+	Phone     string `json:"phone"`
+	Address   string `json:"address"`
+	Gender    string `json:"gender"`
 }
 
 func DetailPatient(p patients.PatientCore) PatientResponse {
 	return PatientResponse{
-		ID:      p.ID,
-		NIK:     p.NIK,
-		Name:    p.Name,
-		Age:     p.Age,
-		Phone:   p.Phone,
-		Address: p.Address,
-		Gender:  p.Gender,
+		ID:        p.ID,
+		NIK:       p.NIK,
+		Name:      p.Name,
+		BirthDate: p.BirthDate,
+		Phone:     p.Phone,
+		Address:   p.Address,
+		Gender:    p.Gender,
 	}
 }
 

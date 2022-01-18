@@ -183,12 +183,12 @@ func ListPrescription(ps []schedules.PrescriptionCore) []PrescriptionResponse {
 
 /* Nested struct for outpatients */
 type Outpatient_Patient struct {
-	ID     int    `json:"id"`
-	NIK    string `json:"nik"`
-	Name   string `json:"name"`
-	Phone  string `json:"phone"`
-	Age    int    `json:"age"`
-	Gender string `json:"gender"`
+	ID        int    `json:"id"`
+	NIK       string `json:"nik"`
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	BirthDate string `json:"birthDate"`
+	Gender    string `json:"gender"`
 }
 
 type Outpatient_Doctor struct {
@@ -227,7 +227,7 @@ func (p Outpatient_Patient) FromCore(c schedules.PatientCore) Outpatient_Patient
 	p.NIK = c.NIK
 	p.Name = c.Name
 	p.Phone = c.Phone
-	p.Age = c.Age
+	p.BirthDate = c.BirthDate
 	p.Gender = c.Gender
 
 	return p

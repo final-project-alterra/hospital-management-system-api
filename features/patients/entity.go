@@ -8,7 +8,7 @@ type PatientCore struct {
 	UpdatedBy int
 	NIK       string
 	Name      string
-	Age       int
+	BirthDate string
 	Phone     string
 	Address   string
 	Gender    string

@@ -41,13 +41,13 @@ type WorkScheduleCore struct {
 }
 
 type PatientCore struct {
-	ID      int
-	NIK     string
-	Name    string
-	Age     int
-	Phone   string
-	Address string
-	Gender  string
+	ID        int
+	NIK       string
+	Name      string
+	BirthDate string
+	Phone     string
+	Address   string
+	Gender    string
 }
 
 type NurseCore struct {
