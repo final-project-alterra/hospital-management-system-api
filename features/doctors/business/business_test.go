@@ -10,6 +10,7 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	d "github.com/final-project-alterra/hospital-management-system-api/features/doctors/business"
 	dm "github.com/final-project-alterra/hospital-management-system-api/features/doctors/mocks"
+	sm "github.com/final-project-alterra/hospital-management-system-api/features/schedules/mocks"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,8 +19,9 @@ import (
 var (
 	doctorData dm.IData
 
-	adminBusiness  am.IBusiness
-	doctorBusiness doctors.IBusiness
+	adminBusiness    am.IBusiness
+	doctorBusiness   doctors.IBusiness
+	scheduleBusiness sm.IBusiness
 
 	adminMaster admins.AdminCore
 	doctorHan   doctors.DoctorCore
@@ -35,6 +37,7 @@ func TestMain(m *testing.M) {
 	doctorBusiness = d.NewDoctorBusinessBuilder().
 		SetData(&doctorData).
 		SetAdminBusiness(&adminBusiness).
+		SetScheduleBusiness(&scheduleBusiness).
 		Build()
 
 	adminMaster = admins.AdminCore{
@@ -710,6 +713,11 @@ func TestRemoveDoctorById(t *testing.T) {
 			Return(adminMaster, nil).
 			Once()
 
+		scheduleBusiness.
+			On("RemoveDoctorFutureWorkSchedules", mock.AnythingOfType("int")).
+			Return(nil).
+			Once()
+
 		doctorData.
 			On("DeleteDoctorById", mock.AnythingOfType("int"), mock.AnythingOfType("int")).
 			Return(nil).
@@ -742,10 +750,31 @@ func TestRemoveDoctorById(t *testing.T) {
 		assert.Equal(t, errors.KindServerError, errors.Kind(err))
 	})
 
+	t.Run("valid - when RemoveDoctorFutureWorkSchedules error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(adminMaster, nil).
+			Once()
+
+		scheduleBusiness.
+			On("RemoveDoctorFutureWorkSchedules", mock.AnythingOfType("int")).
+			Return(errServer).
+			Once()
+
+		err := doctorBusiness.RemoveDoctorById(doctorHan.ID, adminMaster.ID)
+
+		assert.Equal(t, errors.KindServerError, errors.Kind(err))
+	})
+
 	t.Run("valid - when DeleteDoctorById error", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(adminMaster, nil).
+			Once()
+
+		scheduleBusiness.
+			On("RemoveDoctorFutureWorkSchedules", mock.AnythingOfType("int")).
+			Return(nil).
 			Once()
 
 		doctorData.
@@ -757,6 +786,7 @@ func TestRemoveDoctorById(t *testing.T) {
 
 		assert.Equal(t, errors.KindServerError, errors.Kind(err))
 	})
+
 }
 
 func TestFindSpecialities(t *testing.T) {
