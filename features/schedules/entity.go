@@ -51,12 +51,12 @@ type PatientCore struct {
 }
 
 type NurseCore struct {
-	ID     int
-	Email  string
-	Name   string
-	Phone  string
-	Age    int
-	Gender string
+	ID        int
+	Email     string
+	Name      string
+	Phone     string
+	BirthDate string
+	Gender    string
 }
 
 type DoctorCore struct {

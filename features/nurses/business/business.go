@@ -104,7 +104,7 @@ func (n *nurseBusiness) EditNurse(nurse nurses.NurseCore) error {
 	}
 
 	existingNurse.Name = nurse.Name
-	existingNurse.Age = nurse.Age
+	existingNurse.BirthDate = nurse.BirthDate
 	existingNurse.Phone = nurse.Phone
 	existingNurse.Address = nurse.Address
 	existingNurse.Gender = nurse.Gender

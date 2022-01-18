@@ -11,14 +11,14 @@ type Nurse struct {
 	CreatedBy int
 	UpdatedBy int
 
-	Email    string
-	Password string
-	Name     string
-	Age      int
-	ImageUrl string
-	Phone    string
-	Address  string
-	Gender   string
+	Email     string `gorm:"type:varchar(64);unique"`
+	Password  string `gorm:"type:varchar(128)"`
+	Name      string `gorm:"type:varchar(64)"`
+	BirthDate string `gorm:"type:date"`
+	ImageUrl  string
+	Phone     string `gorm:"type:varchar(16)"`
+	Address   string
+	Gender    string `gorm:"type:varchar(1)"`
 }
 
 func (n Nurse) ToNurseCore() nurses.NurseCore {
@@ -30,14 +30,14 @@ func (n Nurse) ToNurseCore() nurses.NurseCore {
 		CreatedBy: n.CreatedBy,
 		UpdatedBy: n.UpdatedBy,
 
-		Email:    n.Email,
-		Password: n.Password,
-		Name:     n.Name,
-		Age:      n.Age,
-		ImageUrl: n.ImageUrl,
-		Phone:    n.Phone,
-		Address:  n.Address,
-		Gender:   n.Gender,
+		Email:     n.Email,
+		Password:  n.Password,
+		Name:      n.Name,
+		BirthDate: n.BirthDate,
+		ImageUrl:  n.ImageUrl,
+		Phone:     n.Phone,
+		Address:   n.Address,
+		Gender:    n.Gender,
 	}
 }
 

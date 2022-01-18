@@ -202,12 +202,12 @@ type Outpatient_Doctor struct {
 }
 
 type Outpatient_Nurse struct {
-	ID     int    `json:"id"`
-	Email  string `json:"email"`
-	Name   string `json:"name"`
-	Phone  string `json:"phone"`
-	Age    int    `json:"age"`
-	Gender string `json:"gender"`
+	ID        int    `json:"id"`
+	Email     string `json:"email"`
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	BirthDate string `json:"birthDate"`
+	Gender    string `json:"gender"`
 }
 
 type Outpatient_WorkScheduleOutPatient_Outpatient struct {
@@ -250,7 +250,7 @@ func (n Outpatient_Nurse) FromCore(c schedules.NurseCore) Outpatient_Nurse {
 	n.Email = c.Email
 	n.Name = c.Name
 	n.Phone = c.Phone
-	n.Age = c.Age
+	n.BirthDate = c.BirthDate
 	n.Gender = c.Gender
 
 	return n
