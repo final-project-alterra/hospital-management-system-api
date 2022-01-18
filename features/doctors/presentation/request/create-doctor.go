@@ -9,14 +9,14 @@ type CreateDoctorRequest struct {
 	SpecialityID int `json:"specialityId" validate:"gt=0"`
 	RoomID       int `json:"roomId" validate:"gt=0"`
 
-	Email     string `json:"email" validate:"email"`
+	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=8"`
-	Name      string `json:"name"`
+	Name      string `json:"name" validate:"required"`
 	BirthDate string `json:"birthDate" validate:"required,ValidateBirthDate"`
 	ImageUrl  string `json:"imageUrl"`
 	Phone     string `json:"phone"`
 	Address   string `json:"address"`
-	Gender    string `json:"gender" validate:"oneof='L' 'P'"`
+	Gender    string `json:"gender" validate:"required,oneof='L' 'P'"`
 }
 
 func (d CreateDoctorRequest) ToDoctorCore() doctors.DoctorCore {

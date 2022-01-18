@@ -1,6 +1,8 @@
 package data
 
 import (
+	"strings"
+
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"gorm.io/gorm"
 )
@@ -11,14 +13,14 @@ type Nurse struct {
 	CreatedBy int
 	UpdatedBy int
 
-	Email     string `gorm:"type:varchar(64);unique"`
-	Password  string `gorm:"type:varchar(128)"`
-	Name      string `gorm:"type:varchar(64)"`
-	BirthDate string `gorm:"type:date"`
+	Email     string `gorm:"type:varchar(64);unique;not null"`
+	Password  string `gorm:"type:varchar(128);not null"`
+	Name      string `gorm:"type:varchar(64);not null"`
+	BirthDate string `gorm:"type:date;not null"`
 	ImageUrl  string
 	Phone     string `gorm:"type:varchar(16)"`
 	Address   string
-	Gender    string `gorm:"type:varchar(1)"`
+	Gender    string `gorm:"type:varchar(1);not null"`
 }
 
 func (n Nurse) ToNurseCore() nurses.NurseCore {
@@ -33,7 +35,7 @@ func (n Nurse) ToNurseCore() nurses.NurseCore {
 		Email:     n.Email,
 		Password:  n.Password,
 		Name:      n.Name,
-		BirthDate: n.BirthDate,
+		BirthDate: strings.Split(n.BirthDate, "T")[0],
 		ImageUrl:  n.ImageUrl,
 		Phone:     n.Phone,
 		Address:   n.Address,

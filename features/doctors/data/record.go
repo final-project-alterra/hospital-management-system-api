@@ -1,6 +1,8 @@
 package data
 
 import (
+	"strings"
+
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"gorm.io/gorm"
 )
@@ -15,26 +17,26 @@ type Doctor struct {
 	Speciality   Speciality
 	Room         Room
 
-	Email     string `gorm:"type:varchar(64);unique"`
-	Password  string `gorm:"type:varchar(128)"`
-	Name      string `gorm:"type:varchar(64)"`
+	Email     string `gorm:"type:varchar(64);unique;not null"`
+	Password  string `gorm:"type:varchar(128);not null"`
+	Name      string `gorm:"type:varchar(64);not null"`
 	Phone     string `gorm:"type:varchar(14)"`
-	Gender    string `gorm:"type:varchar(1)"`
-	BirthDate string `gorm:"type:date"`
+	Gender    string `gorm:"type:varchar(1);not null"`
+	BirthDate string `gorm:"type:date;not null"`
 	ImageUrl  string
 	Address   string
 }
 
 type Speciality struct {
 	gorm.Model
-	Name    string `gorm:"type:varchar(64)"`
+	Name    string `gorm:"type:varchar(64);not null"`
 	Doctors []Doctor
 }
 
 type Room struct {
 	gorm.Model
-	Floor   string `gorm:"type:varchar(16)"`
-	Code    string `gorm:"type:varchar(32);unique"`
+	Floor   string `gorm:"type:varchar(16);not null"`
+	Code    string `gorm:"type:varchar(32);unique;not null"`
 	Doctors []Doctor
 }
 
@@ -49,7 +51,7 @@ func (d Doctor) ToDoctorCore() doctors.DoctorCore {
 		Email:     d.Email,
 		Password:  d.Password,
 		Name:      d.Name,
-		BirthDate: d.BirthDate,
+		BirthDate: strings.Split(d.BirthDate, "T")[0],
 		ImageUrl:  d.ImageUrl,
 		Phone:     d.Phone,
 		Address:   d.Address,

@@ -11,7 +11,7 @@ type UpdateNurseRequest struct {
 	ImageUrl  string `json:"imageUrl"`
 	Phone     string `json:"phone"`
 	Address   string `json:"address"`
-	Gender    string `json:"gender"`
+	Gender    string `json:"gender" validate:"required,oneof='L' 'P'"`
 }
 
 func (c UpdateNurseRequest) ToCore() nurses.NurseCore {

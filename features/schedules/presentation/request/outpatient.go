@@ -3,8 +3,8 @@ package request
 import "github.com/final-project-alterra/hospital-management-system-api/features/schedules"
 
 type CreateOutpatientRequest struct {
-	WorkScheduleID int    `json:"workScheduleId" validate:"gt=0"`
-	PatientID      int    `json:"patientId" validate:"gt=0"`
+	WorkScheduleID int    `json:"workScheduleId" validate:"required,gt=0"`
+	PatientID      int    `json:"patientId" validate:"required,gt=0"`
 	Complaint      string `json:"complaint" validate:"required"`
 }
 
@@ -18,7 +18,7 @@ func (o CreateOutpatientRequest) ToOutpatientCore() schedules.OutpatientCore {
 }
 
 type UpdateOutpatientRequest struct {
-	ID        int    `json:"id" validate:"gt=0"`
+	ID        int    `json:"id" validate:"required,gt=0"`
 	Complaint string `json:"complaint" validate:"required"`
 }
 

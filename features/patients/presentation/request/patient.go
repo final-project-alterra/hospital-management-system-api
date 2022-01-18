@@ -5,21 +5,21 @@ import "github.com/final-project-alterra/hospital-management-system-api/features
 type CreatePatientRequest struct {
 	CreatedBy int
 	NIK       string `json:"nik" validate:"required"`
-	Name      string `json:"name"`
+	Name      string `json:"name" validate:"required"`
 	Phone     string `json:"phone"`
 	BirthDate string `json:"birthDate" validate:"required,ValidateBirthDate"`
 	Address   string `json:"address"`
-	Gender    string `json:"gender" validate:"oneof='L' 'P"`
+	Gender    string `json:"gender" validate:"required,oneof='L' 'P"`
 }
 
 type UpdatePatientRequest struct {
 	UpdatedBy int
 	ID        int    `json:"id" validate:"gt=0"`
-	Name      string `json:"name"`
+	Name      string `json:"name" validate:"required"`
 	Phone     string `json:"phone"`
 	BirthDate string `json:"age" validate:"required,ValidateBirthDate"`
 	Address   string `json:"address"`
-	Gender    string `json:"gender" validate:"oneof='L' 'P"`
+	Gender    string `json:"gender" validate:"required,oneof='L' 'P"`
 }
 
 func (p CreatePatientRequest) ToPatientCore() patients.PatientCore {
