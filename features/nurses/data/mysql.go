@@ -36,7 +36,7 @@ func (r *mySQLRepo) SelectNursesByIds(ids []int) ([]nurses.NurseCore, error) {
 	var errMessage errors.ErrClientMessage = "Something went wrong"
 
 	var nurseRecords []Nurse
-	err := r.db.Find(&nurseRecords, ids).Error
+	err := r.db.Where("id in (?)", ids).Find(&nurseRecords).Error
 	if err != nil {
 		return []nurses.NurseCore{}, errors.E(err, op, errMessage, errors.KindServerError)
 	}

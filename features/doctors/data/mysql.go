@@ -33,7 +33,7 @@ func (r *mySQLRepo) SelectDoctorsByIds(ids []int) ([]doctors.DoctorCore, error) 
 	var errMessage errors.ErrClientMessage = "Something went wrong"
 
 	var doctorRecords []Doctor
-	err := r.db.Preload("Speciality").Preload("Room").Find(&doctorRecords, ids).Error
+	err := r.db.Preload("Speciality").Preload("Room").Where("id IN (?)", ids).Find(&doctorRecords).Error
 	if err != nil {
 		return []doctors.DoctorCore{}, errors.E(err, op, errMessage, errors.KindServerError)
 	}
