@@ -16,10 +16,10 @@ jobs:
 
       - name: Load env file
         env:
-          ENV_FILE: ${{ secrets.ENV_FILE }}
+          HEROKU_ENV_FILE: ${{ secrets.HEROKU_ENV_FILE }}
         run: |
           echo "Loading... env file"
-          echo $ENV_FILE | base64 --decode > .env
+          echo $HEROKU_ENV_FILE | base64 --decode > .env
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
