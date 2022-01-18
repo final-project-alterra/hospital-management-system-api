@@ -13,8 +13,8 @@ type WorkSchedule struct {
 	NurseID     int
 	Group       string `gorm:"type:varchar(64)"`
 	Date        string `gorm:"type:date"`
-	StartTime   MyTime
-	EndTime     MyTime
+	StartTime   MyTime `gorm:"default:null"`
+	EndTime     MyTime `gorm:"default:null"`
 	Outpatients []Outpatient
 }
 
@@ -25,9 +25,10 @@ type Outpatient struct {
 
 	PatientID     int
 	Complaint     string
+	Diagnosis     string
 	Status        int
-	StartTime     MyTime
-	EndTime       MyTime
+	StartTime     MyTime `gorm:"default:null"`
+	EndTime       MyTime `gorm:"default:null"`
 	Prescriptions []Prescription
 }
 
@@ -65,6 +66,7 @@ func (o *Outpatient) toOutpatientCore() schedules.OutpatientCore {
 	return schedules.OutpatientCore{
 		ID:            int(o.ID),
 		Complaint:     o.Complaint,
+		Diagnosis:     o.Diagnosis,
 		Status:        o.Status,
 		StartTime:     o.StartTime.String(),
 		EndTime:       o.EndTime.String(),

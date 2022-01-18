@@ -16,6 +16,9 @@ type env struct {
 	DB_NAME     string
 	DB_USER     string
 	DB_PASSWORD string
+	DB_TIMEZONE string
+
+	TIMEZONE string
 }
 
 var ENV env
@@ -38,4 +41,7 @@ func LoadENV(path string) {
 	ENV.DB_NAME = os.Getenv("DB_NAME")
 	ENV.DB_USER = os.Getenv("DB_USER")
 	ENV.DB_PASSWORD = os.Getenv("DB_PASSWORD")
+	ENV.DB_TIMEZONE = os.Getenv("DB_TIMEZONE")
+
+	ENV.TIMEZONE = os.Getenv("TIMEZONE")
 }

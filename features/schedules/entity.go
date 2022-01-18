@@ -13,6 +13,7 @@ type PrescriptionCore struct {
 type OutpatientCore struct {
 	ID        int
 	Complaint string
+	Diagnosis string
 	Status    int
 	StartTime string
 	EndTime   string
@@ -50,10 +51,12 @@ type PatientCore struct {
 }
 
 type NurseCore struct {
-	ID    int
-	Email string
-	Name  string
-	Phone string
+	ID     int
+	Email  string
+	Name   string
+	Phone  string
+	Age    int
+	Gender string
 }
 
 type DoctorCore struct {
@@ -63,6 +66,8 @@ type DoctorCore struct {
 	Email     string
 	Name      string
 	Phone     string
+	Age       int
+	Gender    string
 }
 
 type RoomCore struct {
@@ -81,8 +86,8 @@ type IBusiness interface {
 	RemoveDoctorFutureWorkSchedules(doctorId int) error
 	RemoveNurseFromNextWorkSchedules(nurseId int) error
 
-	FindOutpatietns(q ScheduleQuery) ([]OutpatientCore, error)
-	FindOutpatietnsByWorkScheduleId(workScheduleId int) (WorkScheduleCore, error)
+	FindOutpatients(q ScheduleQuery) ([]OutpatientCore, error)
+	FindOutpatientsByWorkScheduleId(workScheduleId int) (WorkScheduleCore, error)
 	FindOutpatientsByPatientId(patientId int, q ScheduleQuery) ([]OutpatientCore, error)
 	FindOutpatientById(outpatientId int) (OutpatientCore, error)
 	CreateOutpatient(outpatient OutpatientCore) error

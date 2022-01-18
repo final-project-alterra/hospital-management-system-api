@@ -13,9 +13,11 @@
 3. [GORM](https://gorm.io/) (ORM)
 4. [JWT](https://jwt.io/) (Authentication)
 5. [Docker](https://www.docker.com/) (Container)
+6. [AWS EC2](https://aws.amazon.com/ec2/)(Cloud computing service)
+7. [Github action](https://github.com/features/actions)(CI/CD pipeline)
 
 ## Contributors
 
-[Muhammad Alfi Nasution](https://github.com/)
-[Atikah](https://github.com/)
-[Riza Dwi Andhika](https://github.com/rizadwiandhika)
+- [Atikah](https://github.com/)
+- [Muhammad Alfi Nasution](https://github.com/)
+- [Riza Dwi Andhika](https://github.com/rizadwiandhika)

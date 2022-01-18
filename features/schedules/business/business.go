@@ -1,8 +1,10 @@
 package business
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/final-project-alterra/hospital-management-system-api/config"
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
@@ -226,8 +228,8 @@ func (s *scheduleBusiness) RemoveNurseFromNextWorkSchedules(nurseId int) error {
 	return nil
 }
 
-func (s *scheduleBusiness) FindOutpatietns(q schedules.ScheduleQuery) ([]schedules.OutpatientCore, error) {
-	const op errors.Op = "schedules.business.FindOutpatietns"
+func (s *scheduleBusiness) FindOutpatients(q schedules.ScheduleQuery) ([]schedules.OutpatientCore, error) {
+	const op errors.Op = "schedules.business.FindOutpatients"
 
 	outpatientsData, err := s.data.SelectOutpatients(q)
 	if err != nil {
@@ -264,8 +266,8 @@ func (s *scheduleBusiness) FindOutpatietns(q schedules.ScheduleQuery) ([]schedul
 	return outpatientsData, nil
 }
 
-func (s *scheduleBusiness) FindOutpatietnsByWorkScheduleId(workScheduleId int) (schedules.WorkScheduleCore, error) {
-	const op errors.Op = "schedules.business.FindOutpatietnsByWorkScheduleId"
+func (s *scheduleBusiness) FindOutpatientsByWorkScheduleId(workScheduleId int) (schedules.WorkScheduleCore, error) {
+	const op errors.Op = "schedules.business.FindOutpatientsByWorkScheduleId"
 
 	workSchedule, err := s.data.SelectOutpatientsByWorkScheduleId(workScheduleId)
 	if err != nil {
@@ -293,12 +295,16 @@ func (s *scheduleBusiness) FindOutpatietnsByWorkScheduleId(workScheduleId int) (
 		Email:     doctor.Email,
 		Phone:     doctor.Phone,
 		Specialty: doctor.Speciality.Name,
+		Age:       doctor.Age,
+		Gender:    doctor.Gender,
 	}
 	nurseCore := schedules.NurseCore{
-		ID:    nurse.ID,
-		Name:  nurse.Name,
-		Email: nurse.Email,
-		Phone: nurse.Phone,
+		ID:     nurse.ID,
+		Name:   nurse.Name,
+		Email:  nurse.Email,
+		Phone:  nurse.Phone,
+		Age:    nurse.Age,
+		Gender: nurse.Gender,
 	}
 
 	workSchedule.Doctor = doctorCore
@@ -367,23 +373,30 @@ func (s *scheduleBusiness) FindOutpatientById(outpatientId int) (schedules.Outpa
 	}
 
 	patient := schedules.PatientCore{
-		ID:    patientData.ID,
-		NIK:   patientData.NIK,
-		Name:  patientData.Name,
-		Phone: patientData.Phone,
+		ID:     patientData.ID,
+		NIK:    patientData.NIK,
+		Name:   patientData.Name,
+		Phone:  patientData.Phone,
+		Age:    patientData.Age,
+		Gender: patientData.Gender,
 	}
 	doctor := schedules.DoctorCore{
 		ID:        doctorData.ID,
 		Email:     doctorData.Email,
 		Name:      doctorData.Name,
 		Specialty: doctorData.Speciality.Name,
+		Phone:     doctorData.Phone,
+		Age:       doctorData.Age,
+		Gender:    doctorData.Gender,
 		Room:      schedules.RoomCore{ID: doctorData.Room.ID, Code: doctorData.Room.Code, Floor: doctorData.Room.Floor},
 	}
 	nurse := schedules.NurseCore{
-		ID:    nurseData.ID,
-		Email: nurseData.Email,
-		Name:  nurseData.Name,
-		Phone: nurseData.Phone,
+		ID:     nurseData.ID,
+		Email:  nurseData.Email,
+		Name:   nurseData.Name,
+		Phone:  nurseData.Phone,
+		Age:    nurseData.Age,
+		Gender: nurseData.Gender,
 	}
 
 	outpatientData.Patient = patient
@@ -395,15 +408,35 @@ func (s *scheduleBusiness) FindOutpatientById(outpatientId int) (schedules.Outpa
 
 func (s *scheduleBusiness) CreateOutpatient(outpatient schedules.OutpatientCore) error {
 	const op errors.Op = "schedules.business.CreateOutpatient"
+	var errMsg errors.ErrClientMessage
 
-	_, err := s.data.SelectWorkScheduleById(outpatient.WorkSchedule.ID)
+	_, err := s.patientBusiness.FindPatientById(outpatient.Patient.ID)
 	if err != nil {
 		return errors.E(err, op)
 	}
 
-	_, err = s.patientBusiness.FindPatientById(outpatient.Patient.ID)
+	workSchedule, err := s.data.SelectWorkScheduleById(outpatient.WorkSchedule.ID)
 	if err != nil {
 		return errors.E(err, op)
+	}
+
+	currentTime := time.Now().In(config.GetTimeLoc())
+
+	layout := "2006-01-02T15:04:05"
+	value := fmt.Sprintf("%sT%s", workSchedule.Date, workSchedule.EndTime)
+
+	workScheduleTime, err := time.ParseInLocation(layout, value, config.GetTimeLoc())
+	if err != nil {
+		errMsg = "Something went wrong"
+		return errors.E(err, op, errMsg, errors.KindServerError)
+	}
+
+	// current time = 2021-10-10 19:30:00
+	// work schedule time = 2021-10-10 19:30:00
+	// it's considered that current time IS AFTER work schedule
+	if currentTime.After(workScheduleTime) {
+		errMsg = "Cannot add new outpatient to this workschedule, because it has ended"
+		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
 	}
 
 	outpatient.Status = schedules.StatusWaiting
@@ -477,7 +510,7 @@ func (s *scheduleBusiness) ExamineOutpatient(outpatientId int, userId int, role 
 	}
 
 	existingOutpatient.Status = schedules.StatusOnprogress
-	existingOutpatient.StartTime = time.Now().Format("15:04:05")
+	existingOutpatient.StartTime = time.Now().In(config.GetTimeLoc()).Format("15:04:05")
 
 	err = s.data.UpdateOutpatient(existingOutpatient)
 	if err != nil {
@@ -512,8 +545,9 @@ func (s *scheduleBusiness) FinishOutpatient(outpatient schedules.OutpatientCore,
 		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnauthorized)
 	}
 
-	existingOutpatient.EndTime = time.Now().Format("15:04:05")
+	existingOutpatient.EndTime = time.Now().In(config.GetTimeLoc()).Format("15:04:05")
 	existingOutpatient.Status = schedules.StatusFinished
+	existingOutpatient.Diagnosis = outpatient.Diagnosis
 	existingOutpatient.Prescriptions = outpatient.Prescriptions
 
 	err = s.data.UpdateOutpatient(existingOutpatient)
@@ -736,6 +770,8 @@ func (s *scheduleBusiness) findDoctorsData(ids []int) (map[int]schedules.DoctorC
 			Email:     d.Email,
 			Phone:     d.Phone,
 			Specialty: d.Speciality.Name,
+			Age:       d.Age,
+			Gender:    d.Gender,
 			Room:      schedules.RoomCore{ID: d.Room.ID, Code: d.Room.Code, Floor: d.Room.Floor},
 		}
 	}
@@ -754,10 +790,12 @@ func (s *scheduleBusiness) findNursesData(ids []int) (map[int]schedules.NurseCor
 
 	for _, n := range nursesData {
 		nursesMap[n.ID] = schedules.NurseCore{
-			ID:    n.ID,
-			Name:  n.Name,
-			Email: n.Email,
-			Phone: n.Phone,
+			ID:     n.ID,
+			Name:   n.Name,
+			Email:  n.Email,
+			Phone:  n.Phone,
+			Age:    n.Age,
+			Gender: n.Gender,
 		}
 	}
 
@@ -775,10 +813,12 @@ func (s *scheduleBusiness) findPatientData(ids []int) (map[int]schedules.Patient
 
 	for _, p := range patientsData {
 		patientsMap[p.ID] = schedules.PatientCore{
-			ID:    p.ID,
-			NIK:   p.NIK,
-			Name:  p.Name,
-			Phone: p.Phone,
+			ID:     p.ID,
+			NIK:    p.NIK,
+			Name:   p.Name,
+			Phone:  p.Phone,
+			Age:    p.Age,
+			Gender: p.Gender,
 		}
 	}
 

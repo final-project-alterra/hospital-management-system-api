@@ -1,6 +1,10 @@
 package response
 
-import "github.com/final-project-alterra/hospital-management-system-api/features/schedules"
+import (
+	"time"
+
+	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
+)
 
 type OutpatientResponse struct {
 	ID        int                `json:"id"`
@@ -8,19 +12,25 @@ type OutpatientResponse struct {
 	Date      string             `json:"date"`
 	StartTime string             `json:"startTime"`
 	EndTime   string             `json:"endTime"`
+	CreatedAt time.Time          `json:"createdAt"`
+	UpdatedAt time.Time          `json:"updatedAt"`
 	Complaint string             `json:"complaint"`
+	Diagnosis string             `json:"diagnosis"`
 	Patient   Outpatient_Patient `json:"patient"`
 	Doctor    Outpatient_Doctor  `json:"doctor"`
 	Nurse     Outpatient_Nurse   `json:"nurse"`
 }
 
 type PatientOutpatientResponse struct {
-	ID        int    `json:"id"`
-	Status    int    `json:"status"`
-	Date      string `json:"date"`
-	StartTime string `json:"startTime"`
-	EndTime   string `json:"endTime"`
-	Complaint string `json:"complaint"`
+	ID        int       `json:"id"`
+	Status    int       `json:"status"`
+	Date      string    `json:"date"`
+	StartTime string    `json:"startTime"`
+	EndTime   string    `json:"endTime"`
+	Complaint string    `json:"complaint"`
+	Diagnosis string    `json:"diagnosis"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 
 	Doctor Outpatient_Doctor `json:"doctor"`
 	Nurse  Outpatient_Nurse  `json:"nurse"`
@@ -39,11 +49,14 @@ type WorkScheduleOutPatientResponse struct {
 
 type OutpatientDetailResponse struct {
 	ID           int                    `json:"id"`
+	CreatedAt    time.Time              `json:"createdAt"`
+	UpdatedAt    time.Time              `json:"updatedAt"`
 	Status       int                    `json:"status"`
 	Date         string                 `json:"date"`
 	StartTime    string                 `json:"startTime"`
 	EndTime      string                 `json:"endTime"`
 	Complaint    string                 `json:"complaint"`
+	Diagnosis    string                 `json:"diagnosis"`
 	Patient      Outpatient_Patient     `json:"patient"`
 	Doctor       Outpatient_Doctor      `json:"doctor"`
 	Nurse        Outpatient_Nurse       `json:"nurse"`
@@ -64,6 +77,9 @@ func Outpatient(o schedules.OutpatientCore) OutpatientResponse {
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
+		CreatedAt: o.CreatedAt,
+		UpdatedAt: o.UpdatedAt,
 
 		Patient: Outpatient_Patient{}.FromCore(o.Patient),
 		Doctor:  Outpatient_Doctor{}.FromCore(o.WorkSchedule.Doctor),
@@ -79,6 +95,9 @@ func PatientOutpatient(o schedules.OutpatientCore) PatientOutpatientResponse {
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
+		CreatedAt: o.CreatedAt,
+		UpdatedAt: o.UpdatedAt,
 
 		Doctor: Outpatient_Doctor{}.FromCore(o.WorkSchedule.Doctor),
 		Nurse:  Outpatient_Nurse{}.FromCore(o.WorkSchedule.Nurse),
@@ -111,6 +130,9 @@ func OutpatientDetail(o schedules.OutpatientCore) OutpatientDetailResponse {
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
+		CreatedAt: o.CreatedAt,
+		UpdatedAt: o.UpdatedAt,
 
 		Patient: Outpatient_Patient{}.FromCore(o.Patient),
 		Doctor:  Outpatient_Doctor{}.FromCore(o.WorkSchedule.Doctor),
@@ -161,10 +183,12 @@ func ListPrescription(ps []schedules.PrescriptionCore) []PrescriptionResponse {
 
 /* Nested struct for outpatients */
 type Outpatient_Patient struct {
-	ID    int    `json:"id"`
-	NIK   string `json:"nik"`
-	Name  string `json:"name"`
-	Phone string `json:"phone"`
+	ID     int    `json:"id"`
+	NIK    string `json:"nik"`
+	Name   string `json:"name"`
+	Phone  string `json:"phone"`
+	Age    int    `json:"age"`
+	Gender string `json:"gender"`
 }
 
 type Outpatient_Doctor struct {
@@ -172,12 +196,18 @@ type Outpatient_Doctor struct {
 	Email     string `json:"email"`
 	Name      string `json:"name"`
 	Specialty string `json:"specialty"`
+	Phone     string `json:"phone"`
+	Age       int    `json:"age"`
+	Gender    string `json:"gender"`
 }
 
 type Outpatient_Nurse struct {
-	ID    int    `json:"id"`
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	ID     int    `json:"id"`
+	Email  string `json:"email"`
+	Name   string `json:"name"`
+	Phone  string `json:"phone"`
+	Age    int    `json:"age"`
+	Gender string `json:"gender"`
 }
 
 type Outpatient_WorkScheduleOutPatient_Outpatient struct {
@@ -186,7 +216,10 @@ type Outpatient_WorkScheduleOutPatient_Outpatient struct {
 	StartTime string             `json:"startTime"`
 	EndTime   string             `json:"endTime"`
 	Complaint string             `json:"complaint"`
+	Diagnosis string             `json:"diagnosis"`
 	Patient   Outpatient_Patient `json:"patient"`
+	CreatedAt time.Time          `json:"createdAt"`
+	UpdatedAt time.Time          `json:"updatedAt"`
 }
 
 func (p Outpatient_Patient) FromCore(c schedules.PatientCore) Outpatient_Patient {
@@ -194,6 +227,8 @@ func (p Outpatient_Patient) FromCore(c schedules.PatientCore) Outpatient_Patient
 	p.NIK = c.NIK
 	p.Name = c.Name
 	p.Phone = c.Phone
+	p.Age = c.Age
+	p.Gender = c.Gender
 
 	return p
 }
@@ -203,6 +238,9 @@ func (d Outpatient_Doctor) FromCore(c schedules.DoctorCore) Outpatient_Doctor {
 	d.Email = c.Email
 	d.Name = c.Name
 	d.Specialty = c.Specialty
+	d.Phone = c.Phone
+	d.Age = c.Age
+	d.Gender = c.Gender
 
 	return d
 }
@@ -211,6 +249,9 @@ func (n Outpatient_Nurse) FromCore(c schedules.NurseCore) Outpatient_Nurse {
 	n.ID = c.ID
 	n.Email = c.Email
 	n.Name = c.Name
+	n.Phone = c.Phone
+	n.Age = c.Age
+	n.Gender = c.Gender
 
 	return n
 }
@@ -222,6 +263,9 @@ func (wo Outpatient_WorkScheduleOutPatient_Outpatient) FromCore(o schedules.Outp
 		StartTime: o.StartTime,
 		EndTime:   o.EndTime,
 		Complaint: o.Complaint,
+		Diagnosis: o.Diagnosis,
+		CreatedAt: o.CreatedAt,
+		UpdatedAt: o.UpdatedAt,
 
 		Patient: Outpatient_Patient{}.FromCore(o.Patient),
 	}

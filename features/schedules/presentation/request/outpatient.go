@@ -32,6 +32,7 @@ func (o UpdateOutpatientRequest) ToOutpatientCore() schedules.OutpatientCore {
 
 type FinishOutpatientRequest struct {
 	ID            int                   `json:"id" validate:"gt=0"`
+	Diagnosis     string                `json:"diagnosis" validate:"required"`
 	Prescriptions []PrescriptionRequest `json:"prescriptions" validate:"required"`
 }
 
@@ -44,6 +45,7 @@ func (o FinishOutpatientRequest) ToOutpatientCore() schedules.OutpatientCore {
 
 	return schedules.OutpatientCore{
 		ID:            o.ID,
+		Diagnosis:     o.Diagnosis,
 		Prescriptions: pc,
 	}
 }
