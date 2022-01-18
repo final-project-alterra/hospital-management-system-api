@@ -15,7 +15,7 @@ type WorkScheduleResponse struct {
 		Email      string `json:"email"`
 		Phone      string `json:"phone"`
 		Speciality string `json:"speciality"`
-		Age        int    `json:"age"`
+		BirthDate  string `json:"birthDate"`
 		Gender     string `json:"gender"`
 
 		Room struct {
@@ -63,7 +63,7 @@ type NurseWorkScheduleResponse struct {
 		Email      string `json:"email"`
 		Phone      string `json:"phone"`
 		Speciality string `json:"speciality"`
-		Age        int    `json:"age"`
+		BirthDate  string `json:"birthDate"`
 		Gender     string `json:"gender"`
 
 		Room struct {
@@ -88,7 +88,7 @@ func WorkSchedule(w schedules.WorkScheduleCore) WorkScheduleResponse {
 	resp.Doctor.Email = w.Doctor.Email
 	resp.Doctor.Phone = w.Doctor.Phone
 	resp.Doctor.Speciality = w.Doctor.Specialty
-	resp.Doctor.Age = w.Doctor.Age
+	resp.Doctor.BirthDate = w.Doctor.BirthDate
 	resp.Doctor.Gender = w.Doctor.Gender
 
 	resp.Doctor.Room.ID = w.Doctor.Room.ID
@@ -136,7 +136,7 @@ func NurseSchedule(w schedules.WorkScheduleCore) NurseWorkScheduleResponse {
 	resp.Doctor.Email = w.Doctor.Email
 	resp.Doctor.Phone = w.Doctor.Phone
 	resp.Doctor.Speciality = w.Doctor.Specialty
-	resp.Doctor.Age = w.Doctor.Age
+	resp.Doctor.BirthDate = w.Doctor.BirthDate
 	resp.Doctor.Gender = w.Doctor.Gender
 
 	resp.Doctor.Room.ID = w.Doctor.Room.ID

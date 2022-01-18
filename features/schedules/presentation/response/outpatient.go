@@ -197,7 +197,7 @@ type Outpatient_Doctor struct {
 	Name      string `json:"name"`
 	Specialty string `json:"specialty"`
 	Phone     string `json:"phone"`
-	Age       int    `json:"age"`
+	BirthDate string `json:"birthDate"`
 	Gender    string `json:"gender"`
 }
 
@@ -239,7 +239,7 @@ func (d Outpatient_Doctor) FromCore(c schedules.DoctorCore) Outpatient_Doctor {
 	d.Name = c.Name
 	d.Specialty = c.Specialty
 	d.Phone = c.Phone
-	d.Age = c.Age
+	d.BirthDate = c.BirthDate
 	d.Gender = c.Gender
 
 	return d

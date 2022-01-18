@@ -9,12 +9,12 @@ type UpdateDoctorRequest struct {
 	SpecialityID int `json:"specialityId" validate:"gt=0"`
 	RoomID       int `json:"roomId" validate:"gt=0"`
 
-	Name     string `json:"name"`
-	Age      int    `json:"age"`
-	ImageUrl string `json:"imageUrl"`
-	Phone    string `json:"phone"`
-	Address  string `json:"address"`
-	Gender   string `json:"gender" validate:"oneof='L' 'P'"`
+	Name      string `json:"name"`
+	BirthDate string `json:"birthDate" validate:"required,ValidateBirthDate"`
+	ImageUrl  string `json:"imageUrl"`
+	Phone     string `json:"phone"`
+	Address   string `json:"address"`
+	Gender    string `json:"gender" validate:"oneof='L' 'P'"`
 }
 
 func (d UpdateDoctorRequest) ToDoctorCore() doctors.DoctorCore {
@@ -29,11 +29,11 @@ func (d UpdateDoctorRequest) ToDoctorCore() doctors.DoctorCore {
 			ID: d.RoomID,
 		},
 
-		Name:     d.Name,
-		Age:      d.Age,
-		ImageUrl: d.ImageUrl,
-		Phone:    d.Phone,
-		Address:  d.Address,
-		Gender:   d.Gender,
+		Name:      d.Name,
+		BirthDate: d.BirthDate,
+		ImageUrl:  d.ImageUrl,
+		Phone:     d.Phone,
+		Address:   d.Address,
+		Gender:    d.Gender,
 	}
 }

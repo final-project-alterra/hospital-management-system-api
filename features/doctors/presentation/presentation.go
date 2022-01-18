@@ -18,9 +18,12 @@ type DoctorPresentation struct {
 }
 
 func NewDoctorPresentation(business doctors.IBusiness) *DoctorPresentation {
+	validate := validator.New()
+	_ = validate.RegisterValidation("ValidateBirthDate", request.ValidateBirthDate)
+
 	return &DoctorPresentation{
 		business: business,
-		valitate: validator.New(),
+		valitate: validate,
 	}
 }
 

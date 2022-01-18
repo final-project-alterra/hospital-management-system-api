@@ -66,7 +66,7 @@ type DoctorCore struct {
 	Email     string
 	Name      string
 	Phone     string
-	Age       int
+	BirthDate string
 	Gender    string
 }
 

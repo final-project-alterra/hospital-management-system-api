@@ -295,7 +295,7 @@ func (s *scheduleBusiness) FindOutpatientsByWorkScheduleId(workScheduleId int) (
 		Email:     doctor.Email,
 		Phone:     doctor.Phone,
 		Specialty: doctor.Speciality.Name,
-		Age:       doctor.Age,
+		BirthDate: doctor.BirthDate,
 		Gender:    doctor.Gender,
 	}
 	nurseCore := schedules.NurseCore{
@@ -386,7 +386,7 @@ func (s *scheduleBusiness) FindOutpatientById(outpatientId int) (schedules.Outpa
 		Name:      doctorData.Name,
 		Specialty: doctorData.Speciality.Name,
 		Phone:     doctorData.Phone,
-		Age:       doctorData.Age,
+		BirthDate: doctorData.BirthDate,
 		Gender:    doctorData.Gender,
 		Room:      schedules.RoomCore{ID: doctorData.Room.ID, Code: doctorData.Room.Code, Floor: doctorData.Room.Floor},
 	}
@@ -770,7 +770,7 @@ func (s *scheduleBusiness) findDoctorsData(ids []int) (map[int]schedules.DoctorC
 			Email:     d.Email,
 			Phone:     d.Phone,
 			Specialty: d.Speciality.Name,
-			Age:       d.Age,
+			BirthDate: d.BirthDate,
 			Gender:    d.Gender,
 			Room:      schedules.RoomCore{ID: d.Room.ID, Code: d.Room.Code, Floor: d.Room.Floor},
 		}
