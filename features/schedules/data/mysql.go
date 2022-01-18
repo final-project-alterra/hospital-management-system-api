@@ -301,6 +301,7 @@ func (r *mySQLRepository) SelectOutpatients(q schedules.ScheduleQuery) ([]schedu
 		WorkSchedule.deleted_at IS NULL AND 
 		(WorkSchedule.date BETWEEN ? AND ?)
 	)
+	ORDER BY WorkSchedule.date, outpatients.status
 	LIMIT ?
 	`
 	os := []Outpatient{}
@@ -341,6 +342,7 @@ func (r *mySQLRepository) SelectOutpatientsByPatientId(patientId int, q schedule
 		patient_id = ? AND 
 		(WorkSchedule.date BETWEEN ? AND ?)
 	)
+	ORDER BY WorkSchedule.date, outpatients.status
 	LIMIT ?
 	`
 	os := []Outpatient{}
@@ -360,7 +362,13 @@ func (r *mySQLRepository) SelectOutpatientsByWorkScheduleId(workScheduleId int) 
 	w := WorkSchedule{}
 
 	// err := r.db.Where("work_schedule_id = ?", workScheduleId).Find(&os).Error
-	err := r.db.Preload("Outpatients").First(&w, workScheduleId).Error
+	err := r.db.Preload("Outpatients", func(db *gorm.DB) *gorm.DB {
+		return db.Order("outpatients.status")
+	}).
+		Order("date").
+		First(&w, workScheduleId).
+		Error
+
 	if err != nil {
 		kind := errors.KindServerError
 		switch err {
