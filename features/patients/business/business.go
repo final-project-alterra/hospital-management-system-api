@@ -4,11 +4,13 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/patients"
+	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
 )
 
 type patientBusiness struct {
-	data          patients.IData
-	adminBusiness admins.IBusiness
+	data              patients.IData
+	adminBusiness     admins.IBusiness
+	schedulesBusiness schedules.IBusiness
 }
 
 func (p *patientBusiness) FindPatients() ([]patients.PatientCore, error) {
@@ -100,6 +102,11 @@ func (p *patientBusiness) RemovePatientById(id int, updatedBy int) error {
 	const op errors.Op = "patients.business.EditPatient"
 
 	_, err := p.adminBusiness.FindAdminById(updatedBy)
+	if err != nil {
+		return errors.E(err, op)
+	}
+
+	err = p.schedulesBusiness.RemovePatientWaitingOutpatients(id)
 	if err != nil {
 		return errors.E(err, op)
 	}
