@@ -1,6 +1,10 @@
 package response
 
-import "github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+import (
+	"time"
+
+	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+)
 
 type DoctorSpecialityResponse struct {
 	ID   int    `json:"id"`
@@ -19,13 +23,15 @@ type DoctorResponse struct {
 	Speciality DoctorSpecialityResponse `json:"speciality"`
 	Room       DoctorRoomResponse       `json:"room"`
 
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	ImageUrl  string `json:"image_url"`
-	Address   string `json:"address"`
-	BirthDate string `json:"birthDate"`
-	Phone     string `json:"phone"`
-	Gender    string `json:"gender"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	ImageUrl  string    `json:"imageUrl"`
+	Address   string    `json:"address"`
+	BirthDate string    `json:"birthDate"`
+	Phone     string    `json:"phone"`
+	Gender    string    `json:"gender"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func DetailDoctor(d doctors.DoctorCore) DoctorResponse {
@@ -49,6 +55,8 @@ func DetailDoctor(d doctors.DoctorCore) DoctorResponse {
 		BirthDate: d.BirthDate,
 		Phone:     d.Phone,
 		Gender:    d.Gender,
+		CreatedAt: d.CreatedAt,
+		UpdatedAt: d.UpdatedAt,
 	}
 }
 

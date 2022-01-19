@@ -1,16 +1,22 @@
 package response
 
-import "github.com/final-project-alterra/hospital-management-system-api/features/admins"
+import (
+	"time"
+
+	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
+)
 
 type AdminResponse struct {
-	ID        int    `json:"id"`
-	Email     string `json:"email"`
-	Name      string `json:"name"`
-	BirthDate string `json:"birthDate"`
-	ImageUrl  string `json:"imageUrl"`
-	Phone     string `json:"phone"`
-	Address   string `json:"address"`
-	Gender    string `json:"gender"`
+	ID        int       `json:"id"`
+	Email     string    `json:"email"`
+	Name      string    `json:"name"`
+	BirthDate string    `json:"birthDate"`
+	ImageUrl  string    `json:"imageUrl"`
+	Phone     string    `json:"phone"`
+	Address   string    `json:"address"`
+	Gender    string    `json:"gender"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func DetailAdmin(a admins.AdminCore) AdminResponse {
@@ -23,6 +29,8 @@ func DetailAdmin(a admins.AdminCore) AdminResponse {
 		Phone:     a.Phone,
 		Address:   a.Address,
 		Gender:    a.Gender,
+		CreatedAt: a.CreatedAt,
+		UpdatedAt: a.UpdatedAt,
 	}
 }
 

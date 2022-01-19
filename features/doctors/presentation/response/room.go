@@ -1,18 +1,26 @@
 package response
 
-import "github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+import (
+	"time"
+
+	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+)
 
 type RoomResponse struct {
-	ID    int    `json:"id"`
-	Floor string `json:"floor"`
-	Code  string `json:"code"`
+	ID        int       `json:"id"`
+	Floor     string    `json:"floor"`
+	Code      string    `json:"code"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func DetailRoom(r doctors.RoomCore) RoomResponse {
 	return RoomResponse{
-		ID:    r.ID,
-		Floor: r.Floor,
-		Code:  r.Code,
+		ID:        r.ID,
+		Floor:     r.Floor,
+		Code:      r.Code,
+		CreatedAt: r.CreatedAt,
+		UpdatedAt: r.UpdatedAt,
 	}
 }
 
