@@ -13,8 +13,8 @@ const (
 	RepeatWeekly   = "weekly"
 	RepeatMonthly  = "monthly"
 
-	StatusFinished   = 1
-	StatusOnprogress = 2
-	StatusWaiting    = 3
+	StatusOnprogress = 1
+	StatusWaiting    = 2
+	StatusFinished   = 3
 	StatusCanceled   = 4
 )

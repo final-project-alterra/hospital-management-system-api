@@ -204,8 +204,8 @@ func (s *scheduleBusiness) RemoveDoctorFutureWorkSchedules(doctorId int) error {
 	const op errors.Op = "schedules.business.RemoveDoctorFutureWorkSchedules"
 
 	q := schedules.ScheduleQuery{
-		StartDate: time.Now().Format("2006-01-02"),
-		EndDate:   time.Now().AddDate(100, 0, 0).Format("2006-01-02"),
+		StartDate: time.Now().In(config.GetTimeLoc()).Format("2006-01-02"),
+		EndDate:   time.Now().In(config.GetTimeLoc()).AddDate(100, 0, 0).Format("2006-01-02"),
 	}
 	err := s.data.DeleteWorkSchedulesByDoctorId(doctorId, q)
 	if err != nil {
@@ -218,8 +218,8 @@ func (s *scheduleBusiness) RemoveNurseFromNextWorkSchedules(nurseId int) error {
 	const op errors.Op = "schedules.business.RemoveNurseFromNextWorkSchedules"
 
 	q := schedules.ScheduleQuery{
-		StartDate: time.Now().Format("2006-01-02"),
-		EndDate:   time.Now().AddDate(100, 0, 0).Format("2006-01-02"),
+		StartDate: time.Now().In(config.GetTimeLoc()).Format("2006-01-02"),
+		EndDate:   time.Now().In(config.GetTimeLoc()).AddDate(100, 0, 0).Format("2006-01-02"),
 	}
 	err := s.data.DeleteNurseFromWorkSchedules(nurseId, q)
 	if err != nil {

@@ -235,11 +235,29 @@ func (r *mySQLRepository) DeleteWorkSchedulesByDoctorId(doctorId int, q schedule
 	const op errors.Op = "schedules.data.DeleteWorkSchedulesByDoctorId"
 	var errMsg errors.ErrClientMessage = "Something went wrong"
 
-	err := r.db.
-		Where("doctor_id = ? AND (date BETWEEN ? AND ?)", doctorId, q.StartDate, q.EndDate).
-		Delete(&WorkSchedule{}).
-		Error
+	deleteTransaction := func(tx *gorm.DB) error {
+		deleteOutpatients := `
+			DELETE FROM outpatients 
+			WHERE work_schedule_id IN (
+				SELECT work_schedules.id FROM work_schedules
+				WHERE work_schedules.doctor_id = ? AND (work_schedules.date BETWEEN ? AND ?)
+			)
+		`
+		deleteDoctorWorkSchedules := `
+			DELETE FROM work_schedules
+			WHERE doctor_id = ? AND (date BETWEEN ? AND ?)
+		`
 
+		if err := tx.Exec(deleteOutpatients, doctorId, q.StartDate, q.EndDate).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(deleteDoctorWorkSchedules, doctorId, q.StartDate, q.EndDate).Error; err != nil {
+			return err
+		}
+		return nil
+	}
+
+	err := r.db.Transaction(deleteTransaction)
 	if err != nil {
 		return errors.E(err, op, errMsg, errors.KindServerError)
 	}
@@ -283,6 +301,7 @@ func (r *mySQLRepository) SelectOutpatients(q schedules.ScheduleQuery) ([]schedu
 		WorkSchedule.deleted_at IS NULL AND 
 		(WorkSchedule.date BETWEEN ? AND ?)
 	)
+	ORDER BY WorkSchedule.date, outpatients.status
 	LIMIT ?
 	`
 	os := []Outpatient{}
@@ -323,6 +342,7 @@ func (r *mySQLRepository) SelectOutpatientsByPatientId(patientId int, q schedule
 		patient_id = ? AND 
 		(WorkSchedule.date BETWEEN ? AND ?)
 	)
+	ORDER BY WorkSchedule.date, outpatients.status
 	LIMIT ?
 	`
 	os := []Outpatient{}
@@ -342,7 +362,13 @@ func (r *mySQLRepository) SelectOutpatientsByWorkScheduleId(workScheduleId int) 
 	w := WorkSchedule{}
 
 	// err := r.db.Where("work_schedule_id = ?", workScheduleId).Find(&os).Error
-	err := r.db.Preload("Outpatients").First(&w, workScheduleId).Error
+	err := r.db.Preload("Outpatients", func(db *gorm.DB) *gorm.DB {
+		return db.Order("outpatients.status")
+	}).
+		Order("date").
+		First(&w, workScheduleId).
+		Error
+
 	if err != nil {
 		kind := errors.KindServerError
 		switch err {
