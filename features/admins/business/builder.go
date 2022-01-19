@@ -3,7 +3,7 @@ package business
 import "github.com/final-project-alterra/hospital-management-system-api/features/admins"
 
 type adminBusinessBuilder struct {
-	adminBusiness
+	adminRepo admins.IData
 }
 
 func NewAdminBusinessBuilder() *adminBusinessBuilder {
@@ -11,13 +11,16 @@ func NewAdminBusinessBuilder() *adminBusinessBuilder {
 }
 
 func (b *adminBusinessBuilder) SetData(data admins.IData) *adminBusinessBuilder {
-	b.data = data
+	b.adminRepo = data
 	return b
 }
 
 func (b *adminBusinessBuilder) Build() admins.IBusiness {
-	business := b.adminBusiness
-	b.adminBusiness = adminBusiness{}
+	adminBusiness := &adminBusiness{
+		data: b.adminRepo,
+	}
 
-	return &business
+	b.adminRepo = nil
+
+	return adminBusiness
 }
