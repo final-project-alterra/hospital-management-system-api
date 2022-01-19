@@ -2,22 +2,33 @@ package business
 
 import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
+	"github.com/final-project-alterra/hospital-management-system-api/features/auth"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 )
 
 type authBusinessBuilder struct {
-	authBusiness
+	adminBusiness  admins.IBusiness
+	doctorBusiness doctors.IBusiness
+	nurseBusiness  nurses.IBusiness
 }
 
 func NewAuthBusinessBuilder() *authBusinessBuilder {
 	return &authBusinessBuilder{}
 }
 
-func (a *authBusinessBuilder) Build() *authBusiness {
-	business := a.authBusiness
-	a.authBusiness = authBusiness{}
-	return &business
+func (a *authBusinessBuilder) Build() auth.IBusiness {
+	authBusiness := &authBusiness{
+		adminBusiness:  a.adminBusiness,
+		doctorBusiness: a.doctorBusiness,
+		nurseBusiness:  a.nurseBusiness,
+	}
+
+	a.adminBusiness = nil
+	a.doctorBusiness = nil
+	a.nurseBusiness = nil
+
+	return authBusiness
 }
 
 func (a *authBusinessBuilder) SetAdminBusiness(ab admins.IBusiness) *authBusinessBuilder {
