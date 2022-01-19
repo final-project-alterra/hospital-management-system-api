@@ -10,6 +10,7 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/patients"
 	pb "github.com/final-project-alterra/hospital-management-system-api/features/patients/business"
 	pmocks "github.com/final-project-alterra/hospital-management-system-api/features/patients/mocks"
+	smocks "github.com/final-project-alterra/hospital-management-system-api/features/schedules/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -17,8 +18,9 @@ import (
 var (
 	repo pmocks.IData
 
-	adminBusiness amocks.IBusiness
-	business      patients.IBusiness
+	schedulesBusiness smocks.IBusiness
+	adminBusiness     amocks.IBusiness
+	business          patients.IBusiness
 
 	patient patients.PatientCore
 	admin   admins.AdminCore
@@ -28,7 +30,11 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	business = pb.NewPatientBusinessBuilder().SetData(&repo).SetAdminBusiness(&adminBusiness).Build()
+	business = pb.NewPatientBusinessBuilder().
+		SetData(&repo).
+		SetAdminBusiness(&adminBusiness).
+		SetScheduleBusiness(&schedulesBusiness).
+		Build()
 
 	patient = patients.PatientCore{
 		ID:   1,
@@ -286,6 +292,11 @@ func TestRemovePatientById(t *testing.T) {
 			Return(admin, nil).
 			Once()
 
+		schedulesBusiness.
+			On("RemovePatientWaitingOutpatients", mock.AnythingOfType("int")).
+			Return(nil).
+			Once()
+
 		repo.
 			On("DeletePatientById", mock.AnythingOfType("int"), mock.AnythingOfType("int")).
 			Return(nil).
@@ -306,10 +317,30 @@ func TestRemovePatientById(t *testing.T) {
 		assert.Equal(t, errors.KindNotFound, errors.Kind(err))
 	})
 
+	t.Run("valid - when RemovePatientWaitingOutpatients return error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(admin, nil).
+			Once()
+
+		schedulesBusiness.
+			On("RemovePatientWaitingOutpatients", mock.AnythingOfType("int")).
+			Return(errServer).
+			Once()
+
+		err := business.RemovePatientById(patient.ID, admin.ID)
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - when DeletePatientById return error", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(admin, nil).
+			Once()
+
+		schedulesBusiness.
+			On("RemovePatientWaitingOutpatients", mock.AnythingOfType("int")).
+			Return(nil).
 			Once()
 
 		repo.

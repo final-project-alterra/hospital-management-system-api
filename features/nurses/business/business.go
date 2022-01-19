@@ -4,12 +4,14 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
+	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 )
 
 type nurseBusiness struct {
-	data          nurses.IData
-	adminBusiness admins.IBusiness
+	data             nurses.IData
+	adminBusiness    admins.IBusiness
+	scheduleBusiness schedules.IBusiness
 }
 
 func (n *nurseBusiness) FindNurses() ([]nurses.NurseCore, error) {
@@ -154,6 +156,11 @@ func (n *nurseBusiness) RemoveNurseById(id int, updatedBy int) error {
 	const op errors.Op = "nurses.business.RemoveNurseById"
 
 	_, err := n.adminBusiness.FindAdminById(updatedBy)
+	if err != nil {
+		return errors.E(err, op)
+	}
+
+	err = n.scheduleBusiness.RemoveNurseFromNextWorkSchedules(id)
 	if err != nil {
 		return errors.E(err, op)
 	}

@@ -12,13 +12,13 @@ type IBusiness struct {
 	mock.Mock
 }
 
-// CancelOutpatient provides a mock function with given fields: outpatientId
-func (_m *IBusiness) CancelOutpatient(outpatientId int) error {
-	ret := _m.Called(outpatientId)
+// CancelOutpatient provides a mock function with given fields: outpatientId, userId, role
+func (_m *IBusiness) CancelOutpatient(outpatientId int, userId int, role string) error {
+	ret := _m.Called(outpatientId, userId, role)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int) error); ok {
-		r0 = rf(outpatientId)
+	if rf, ok := ret.Get(0).(func(int, int, string) error); ok {
+		r0 = rf(outpatientId, userId, role)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -82,13 +82,13 @@ func (_m *IBusiness) EditWorkSchedule(workSchedule schedules.WorkScheduleCore) e
 	return r0
 }
 
-// ExamineOutpatient provides a mock function with given fields: outpatientId
-func (_m *IBusiness) ExamineOutpatient(outpatientId int) error {
-	ret := _m.Called(outpatientId)
+// ExamineOutpatient provides a mock function with given fields: outpatientId, userId, role
+func (_m *IBusiness) ExamineOutpatient(outpatientId int, userId int, role string) error {
+	ret := _m.Called(outpatientId, userId, role)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int) error); ok {
-		r0 = rf(outpatientId)
+	if rf, ok := ret.Get(0).(func(int, int, string) error); ok {
+		r0 = rf(outpatientId, userId, role)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -163,6 +163,29 @@ func (_m *IBusiness) FindOutpatientById(outpatientId int) (schedules.OutpatientC
 	return r0, r1
 }
 
+// FindOutpatients provides a mock function with given fields: q
+func (_m *IBusiness) FindOutpatients(q schedules.ScheduleQuery) ([]schedules.OutpatientCore, error) {
+	ret := _m.Called(q)
+
+	var r0 []schedules.OutpatientCore
+	if rf, ok := ret.Get(0).(func(schedules.ScheduleQuery) []schedules.OutpatientCore); ok {
+		r0 = rf(q)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]schedules.OutpatientCore)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(schedules.ScheduleQuery) error); ok {
+		r1 = rf(q)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindOutpatientsByPatientId provides a mock function with given fields: patientId, q
 func (_m *IBusiness) FindOutpatientsByPatientId(patientId int, q schedules.ScheduleQuery) ([]schedules.OutpatientCore, error) {
 	ret := _m.Called(patientId, q)
@@ -186,31 +209,8 @@ func (_m *IBusiness) FindOutpatientsByPatientId(patientId int, q schedules.Sched
 	return r0, r1
 }
 
-// FindOutpatietns provides a mock function with given fields: q
-func (_m *IBusiness) FindOutpatietns(q schedules.ScheduleQuery) ([]schedules.OutpatientCore, error) {
-	ret := _m.Called(q)
-
-	var r0 []schedules.OutpatientCore
-	if rf, ok := ret.Get(0).(func(schedules.ScheduleQuery) []schedules.OutpatientCore); ok {
-		r0 = rf(q)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]schedules.OutpatientCore)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(schedules.ScheduleQuery) error); ok {
-		r1 = rf(q)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// FindOutpatietnsByWorkScheduleId provides a mock function with given fields: workScheduleId
-func (_m *IBusiness) FindOutpatietnsByWorkScheduleId(workScheduleId int) (schedules.WorkScheduleCore, error) {
+// FindOutpatientsByWorkScheduleId provides a mock function with given fields: workScheduleId
+func (_m *IBusiness) FindOutpatientsByWorkScheduleId(workScheduleId int) (schedules.WorkScheduleCore, error) {
 	ret := _m.Called(workScheduleId)
 
 	var r0 schedules.WorkScheduleCore
@@ -253,13 +253,13 @@ func (_m *IBusiness) FindWorkSchedules(q schedules.ScheduleQuery) ([]schedules.W
 	return r0, r1
 }
 
-// FinishOutpatient provides a mock function with given fields: outpatient
-func (_m *IBusiness) FinishOutpatient(outpatient schedules.OutpatientCore) error {
-	ret := _m.Called(outpatient)
+// FinishOutpatient provides a mock function with given fields: outpatient, userId, role
+func (_m *IBusiness) FinishOutpatient(outpatient schedules.OutpatientCore, userId int, role string) error {
+	ret := _m.Called(outpatient, userId, role)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(schedules.OutpatientCore) error); ok {
-		r0 = rf(outpatient)
+	if rf, ok := ret.Get(0).(func(schedules.OutpatientCore, int, string) error); ok {
+		r0 = rf(outpatient, userId, role)
 	} else {
 		r0 = ret.Error(0)
 	}

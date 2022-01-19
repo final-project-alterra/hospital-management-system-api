@@ -50,10 +50,24 @@ func New() *Presenter {
 	patientData := patientsData.NewMySQLRepo(config.DB)
 	scheduleData := schedulesData.NewMySQLRepo(config.DB)
 
+	pureScheduleBusiness := scheduleBuilder.SetData(scheduleData).Build()
+
 	adminBusiness := adminBuilder.SetData(adminData).Build()
-	doctorBusiness := doctorBuilder.SetData(doctorData).SetAdminBusiness(adminBusiness).Build()
-	nurseBusiness := nurseBuilder.SetData(nurseData).SetAdminBusiness(adminBusiness).Build()
-	patientBusiness := patientBuilder.SetData(patientData).SetAdminBusiness(adminBusiness).Build()
+	doctorBusiness := doctorBuilder.
+		SetData(doctorData).
+		SetAdminBusiness(adminBusiness).
+		SetScheduleBusiness(pureScheduleBusiness).
+		Build()
+	nurseBusiness := nurseBuilder.
+		SetData(nurseData).
+		SetAdminBusiness(adminBusiness).
+		SetScheduleBusiness(pureScheduleBusiness).
+		Build()
+	patientBusiness := patientBuilder.
+		SetData(patientData).
+		SetAdminBusiness(adminBusiness).
+		SetScheduleBusiness(pureScheduleBusiness).
+		Build()
 	authBusiness := authBuilder.
 		SetAdminBusiness(adminBusiness).
 		SetDoctorBusiness(doctorBusiness).

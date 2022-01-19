@@ -4,12 +4,14 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 )
 
 type doctorBusiness struct {
-	data          doctors.IData
-	adminBusiness admins.IBusiness
+	data             doctors.IData
+	adminBusiness    admins.IBusiness
+	scheduleBusiness schedules.IBusiness
 }
 
 func (d *doctorBusiness) FindDoctors() ([]doctors.DoctorCore, error) {
@@ -216,6 +218,11 @@ func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
 		default:
 			return errors.E(err, op)
 		}
+	}
+
+	err = d.scheduleBusiness.RemoveDoctorFutureWorkSchedules(id)
+	if err != nil {
+		return errors.E(err, op)
 	}
 
 	err = d.data.DeleteDoctorById(id, updatedBy)

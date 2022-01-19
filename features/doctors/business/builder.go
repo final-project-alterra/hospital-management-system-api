@@ -3,10 +3,13 @@ package business
 import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
 )
 
 type doctorBusinessBuilder struct {
-	doctorBusiness
+	doctorRepo       doctors.IData
+	adminBusiness    admins.IBusiness
+	scheduleBusiness schedules.IBusiness
 }
 
 func NewDoctorBusinessBuilder() *doctorBusinessBuilder {
@@ -14,7 +17,7 @@ func NewDoctorBusinessBuilder() *doctorBusinessBuilder {
 }
 
 func (b *doctorBusinessBuilder) SetData(data doctors.IData) *doctorBusinessBuilder {
-	b.data = data
+	b.doctorRepo = data
 	return b
 }
 
@@ -23,9 +26,21 @@ func (b *doctorBusinessBuilder) SetAdminBusiness(ab admins.IBusiness) *doctorBus
 	return b
 }
 
-func (b *doctorBusinessBuilder) Build() doctors.IBusiness {
-	business := b.doctorBusiness
-	b.doctorBusiness = doctorBusiness{}
+func (b *doctorBusinessBuilder) SetScheduleBusiness(sb schedules.IBusiness) *doctorBusinessBuilder {
+	b.scheduleBusiness = sb
+	return b
+}
 
-	return &business
+func (b *doctorBusinessBuilder) Build() doctors.IBusiness {
+	doctorBusiness := &doctorBusiness{
+		data:             b.doctorRepo,
+		adminBusiness:    b.adminBusiness,
+		scheduleBusiness: b.scheduleBusiness,
+	}
+
+	b.doctorRepo = nil
+	b.adminBusiness = nil
+	b.scheduleBusiness = nil
+
+	return doctorBusiness
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	nb "github.com/final-project-alterra/hospital-management-system-api/features/nurses/business"
 	nm "github.com/final-project-alterra/hospital-management-system-api/features/nurses/mocks"
+	sm "github.com/final-project-alterra/hospital-management-system-api/features/schedules/mocks"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,8 +19,9 @@ import (
 var (
 	repo nm.IData
 
-	business      nurses.IBusiness
-	adminBusiness am.IBusiness
+	business         nurses.IBusiness
+	adminBusiness    am.IBusiness
+	scheduleBusiness sm.IBusiness
 
 	admin1 admins.AdminCore
 	nurse1 nurses.NurseCore
@@ -32,6 +34,7 @@ func TestMain(t *testing.M) {
 	business = nb.NewNurseBusinessBuilder().
 		SetData(&repo).
 		SetAdminBusiness(&adminBusiness).
+		SetScheduleBusiness(&scheduleBusiness).
 		Build()
 
 	admin1 = admins.AdminCore{
@@ -430,6 +433,11 @@ func TestRemoveNurseById(t *testing.T) {
 			Return(admin1, nil).
 			Once()
 
+		scheduleBusiness.
+			On("RemoveNurseFromNextWorkSchedules", mock.AnythingOfType("int")).
+			Return(nil).
+			Once()
+
 		repo.
 			On("DeleteNurseById", mock.AnythingOfType("int"), mock.AnythingOfType("int")).
 			Return(nil).
@@ -449,10 +457,30 @@ func TestRemoveNurseById(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("valid - when RemoveNurseFromNextWorkSchedules error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(admin1, nil).
+			Once()
+
+		scheduleBusiness.
+			On("RemoveNurseFromNextWorkSchedules", mock.AnythingOfType("int")).
+			Return(errServer).
+			Once()
+
+		err := business.RemoveNurseById(1, 2)
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - when DeleteNurseById return error", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(admin1, nil).
+			Once()
+
+		scheduleBusiness.
+			On("RemoveNurseFromNextWorkSchedules", mock.AnythingOfType("int")).
+			Return(nil).
 			Once()
 
 		repo.
