@@ -502,6 +502,24 @@ func (s *scheduleBusiness) ExamineOutpatient(outpatientId int, userId int, role 
 		return errors.E(err, op)
 	}
 
+	const LAYOUT = "2006-01-02T15:04:05"
+	const OFFSET = 2 * time.Hour
+
+	date := fmt.Sprintf("%sT%s", workSchedule.Date, workSchedule.StartTime)
+	start, _ := time.ParseInLocation(LAYOUT, date, config.GetTimeLoc())
+
+	date = fmt.Sprintf("%sT%s", workSchedule.Date, workSchedule.EndTime)
+	end, _ := time.ParseInLocation(LAYOUT, date, config.GetTimeLoc())
+
+	lowerLimit := start.Add(-OFFSET)
+	upperLimit := end.Add(OFFSET)
+
+	currentTime := time.Now().In(config.GetTimeLoc())
+	if currentTime.Before(lowerLimit) || currentTime.After(upperLimit) {
+		errMsg = "Examine for this schedule is not available"
+		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}
+
 	for i := range workSchedule.Outpatients {
 		if workSchedule.Outpatients[i].Status == schedules.StatusOnprogress {
 			errMsg = "There is an ongoing examination"
