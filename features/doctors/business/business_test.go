@@ -10,6 +10,8 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	d "github.com/final-project-alterra/hospital-management-system-api/features/doctors/business"
 	dm "github.com/final-project-alterra/hospital-management-system-api/features/doctors/mocks"
+	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
+	nm "github.com/final-project-alterra/hospital-management-system-api/features/nurses/mocks"
 	sm "github.com/final-project-alterra/hospital-management-system-api/features/schedules/mocks"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/stretchr/testify/assert"
@@ -21,6 +23,7 @@ var (
 
 	adminBusiness    am.IBusiness
 	doctorBusiness   doctors.IBusiness
+	nurseBusiness    nm.IBusiness
 	scheduleBusiness sm.IBusiness
 
 	adminMaster admins.AdminCore
@@ -37,6 +40,7 @@ func TestMain(m *testing.M) {
 	doctorBusiness = d.NewDoctorBusinessBuilder().
 		SetData(&doctorData).
 		SetAdminBusiness(&adminBusiness).
+		SetNurseBusiness(&nurseBusiness).
 		SetScheduleBusiness(&scheduleBusiness).
 		Build()
 
@@ -194,6 +198,16 @@ func TestCreateDoctor(t *testing.T) {
 			Return(doctors.DoctorCore{}, errNotFound).
 			Once()
 
+		adminBusiness.
+			On("FindAdminByEmail", mock.AnythingOfType("string")).
+			Return(admins.AdminCore{}, errNotFound).
+			Once()
+
+		nurseBusiness.
+			On("FindNurseByEmail", mock.AnythingOfType("string")).
+			Return(nurses.NurseCore{}, errNotFound).
+			Once()
+
 		doctorData.
 			On("InsertDoctor", mock.AnythingOfType("doctors.DoctorCore")).
 			Return(nil).
@@ -284,58 +298,68 @@ func TestCreateDoctor(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(adminMaster, nil).
-			Once()
+			Times(3)
 
 		doctorData.
 			On("SelectSpecialityById", mock.AnythingOfType("int")).
 			Return(speciality1, nil).
-			Once()
+			Times(3)
 
 		doctorData.
 			On("SelectRoomById", mock.AnythingOfType("int")).
 			Return(room1, nil).
-			Once()
+			Times(3)
 
-		doctorData.
-			On("SelectDoctorByEmail", mock.AnythingOfType("string")).
-			Return(doctors.DoctorCore{ID: 2, Email: doctorHan.Email}, nil).
-			Once()
+		for i := 0; i < 3; i++ {
+			switch i {
+			case 0:
+				adminBusiness.
+					On("FindAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{ID: 1}, nil).
+					Once()
+				doctorData.
+					On("SelectDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{}, errNotFound).
+					Once()
+				nurseBusiness.
+					On("FindNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{}, errNotFound).
+					Once()
+			case 1:
+				adminBusiness.
+					On("FindAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{}, errNotFound).
+					Once()
+				doctorData.
+					On("SelectDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{ID: 1}, nil).
+					Once()
+				nurseBusiness.
+					On("FindNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{}, errNotFound).
+					Once()
+			case 2:
+				adminBusiness.
+					On("FindAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{}, errNotFound).
+					Once()
+				doctorData.
+					On("SelectDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{}, errNotFound).
+					Once()
+				nurseBusiness.
+					On("FindNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{ID: 1}, nil).
+					Once()
+			}
 
-		newDoctor := doctorHan
-		newDoctor.ID = 0
-		newDoctor.CreatedBy = adminMaster.ID
-		err := doctorBusiness.CreateDoctor(newDoctor)
+			newDoctor := doctorHan
+			newDoctor.ID = 0
+			newDoctor.CreatedBy = adminMaster.ID
+			err := doctorBusiness.CreateDoctor(newDoctor)
 
-		assert.Equal(t, errors.KindUnprocessable, errors.Kind(err))
-	})
-
-	t.Run("valid - when unexpected error happens on SelectDoctorByEmail", func(t *testing.T) {
-		adminBusiness.
-			On("FindAdminById", mock.AnythingOfType("int")).
-			Return(adminMaster, nil).
-			Once()
-
-		doctorData.
-			On("SelectSpecialityById", mock.AnythingOfType("int")).
-			Return(speciality1, nil).
-			Once()
-
-		doctorData.
-			On("SelectRoomById", mock.AnythingOfType("int")).
-			Return(room1, nil).
-			Once()
-
-		doctorData.
-			On("SelectDoctorByEmail", mock.AnythingOfType("string")).
-			Return(doctors.DoctorCore{}, errServer).
-			Once()
-
-		newDoctor := doctorHan
-		newDoctor.ID = 0
-		newDoctor.CreatedBy = adminMaster.ID
-		err := doctorBusiness.CreateDoctor(newDoctor)
-
-		assert.Equal(t, errors.KindServerError, errors.Kind(err))
+			assert.Equal(t, errors.KindUnprocessable, errors.Kind(err))
+		}
 	})
 
 	t.Run("valid - when InsertDoctor error", func(t *testing.T) {
@@ -357,6 +381,16 @@ func TestCreateDoctor(t *testing.T) {
 		doctorData.
 			On("SelectDoctorByEmail", mock.AnythingOfType("string")).
 			Return(doctors.DoctorCore{}, errNotFound).
+			Once()
+
+		adminBusiness.
+			On("FindAdminByEmail", mock.AnythingOfType("string")).
+			Return(admins.AdminCore{}, errNotFound).
+			Once()
+
+		nurseBusiness.
+			On("FindNurseByEmail", mock.AnythingOfType("string")).
+			Return(nurses.NurseCore{}, errNotFound).
 			Once()
 
 		doctorData.
