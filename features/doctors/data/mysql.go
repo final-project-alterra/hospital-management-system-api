@@ -3,8 +3,10 @@ package data
 import (
 	"time"
 
+	"github.com/final-project-alterra/hospital-management-system-api/config"
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -156,8 +158,10 @@ func (r *mySQLRepo) DeleteDoctorById(id int, updatedBy int) error {
 	const op errors.Op = "doctors.data.DeleteDoctorById"
 	var errMessage errors.ErrClientMessage = "Something went wrong"
 
+	email := uuid.New().String()
+	now := time.Now().In(config.GetTimeLoc())
 	err := r.db.
-		Exec("UPDATE doctors SET updated_by = ?, deleted_at = ? WHERE id = ?", updatedBy, time.Now(), id).
+		Exec("UPDATE doctors SET updated_by = ?, deleted_at = ?, email = ? WHERE id = ?", updatedBy, now, email, id).
 		Error
 
 	if err != nil {

@@ -3,6 +3,7 @@ package data
 import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -139,6 +140,7 @@ func (r *MySQLRepo) DeleteAdminById(id int, updatedBy int) error {
 
 		updatedByConverted := uint(updatedBy)
 		data.UpdatedBy = &updatedByConverted
+		data.Email = uuid.New().String()
 		err = tx.Save(&data).Error
 		if err != nil {
 			return errors.E(err, op, errMessage, errors.KindServerError)
