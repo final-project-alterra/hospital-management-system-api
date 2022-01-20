@@ -573,7 +573,17 @@ func TestRemoveWorkScheduleById(t *testing.T) {
 }
 
 func TestRemoveDoctorFutureWorkSchedules(t *testing.T) {
+	w := workSchedule1
+	o := outpatient1
+	o.Status = s.StatusWaiting
+	w.Outpatients = []s.OutpatientCore{o}
+
 	t.Run("valid - when everything is fine", func(t *testing.T) {
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{w}, nil).
+			Once()
+
 		repo.
 			On("DeleteWorkSchedulesByDoctorId", anyInt, any).
 			Return(nil).
@@ -583,7 +593,37 @@ func TestRemoveDoctorFutureWorkSchedules(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("valid - when SelectWorkSchedulesByDoctorId error", func(t *testing.T) {
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{}, errServer).
+			Once()
+
+		err := business.RemoveDoctorFutureWorkSchedules(1)
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when there exists ongoing outpatients", func(t *testing.T) {
+		newWorkschedule := w
+		newOutpatient := o
+		newOutpatient.Status = s.StatusOnprogress
+		newWorkschedule.Outpatients = []s.OutpatientCore{newOutpatient}
+
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{newWorkschedule}, nil).
+			Once()
+
+		err := business.RemoveDoctorFutureWorkSchedules(1)
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - DeleteWorkSchedulesByDoctorId error", func(t *testing.T) {
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{w}, nil).
+			Once()
+
 		repo.
 			On("DeleteWorkSchedulesByDoctorId", anyInt, any).
 			Return(errServer).
