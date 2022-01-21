@@ -1,14 +1,21 @@
 package presentation
 
 import (
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path"
 	"strconv"
 
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins/presentation/request"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins/presentation/response"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -90,6 +97,56 @@ func (ap *AdminPresentation) PostCreateAdmin(c echo.Context) error {
 	err = ap.business.CreateAdmin(newAdmin.ToAdminCore())
 	if err != nil {
 		return response.Error(c, errors.E(err, op))
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
+func (ap *AdminPresentation) PutEditImageProfile(c echo.Context) error {
+	status := http.StatusOK
+	message := "Image profile updated"
+	const op errors.Op = "admins.presentation.PutEditImageProfile"
+	var errMsg errors.ErrClientMessage
+
+	updatedBy := c.Get("userId").(int)
+	adminID, err := strconv.Atoi(c.FormValue("userId"))
+	if err != nil {
+		errMsg = "Unable to parse user id"
+		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
+	}
+
+	destDirectory := path.Join(project.GetMainDir(), "files")
+	filename, err := ap.allocateFile(c, destDirectory)
+	if err != nil {
+		return response.Error(c, errors.E(err, op))
+	}
+
+	updatedAdmin := admins.AdminCore{ID: adminID, UpdatedBy: updatedBy, ImageUrl: filename}
+	err = ap.business.EditAdminProfileImage(updatedAdmin)
+	if err != nil {
+		return response.Error(c, err)
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
+func (ap *AdminPresentation) DeleteImageProfile(c echo.Context) error {
+	status := http.StatusOK
+	message := "Image profile deleted"
+	const op errors.Op = "admins.presentation.DeleteImageProfile"
+	var errMsg errors.ErrClientMessage
+
+	updatedBy := c.Get("userId").(int)
+	adminID, err := strconv.Atoi(c.Param("adminId"))
+	if err != nil {
+		errMsg = "Unable to parse admin id"
+		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
+	}
+
+	updatedAdmin := admins.AdminCore{ID: adminID, UpdatedBy: updatedBy, ImageUrl: ""}
+	err = ap.business.EditAdminProfileImage(updatedAdmin)
+	if err != nil {
+		return response.Error(c, err)
 	}
 
 	return response.Success(c, status, message, nil)
@@ -190,4 +247,42 @@ func (ap *AdminPresentation) DeleteAdmin(c echo.Context) error {
 	}
 
 	return response.Success(c, status, message, nil)
+}
+
+// Private methods
+func (ap *AdminPresentation) allocateFile(c echo.Context, destDirectory string) (string, error) {
+	const op errors.Op = "admins.presentation.allocateFile"
+	var errMsg errors.ErrClientMessage = "Something went wrong"
+
+	var file *multipart.FileHeader
+	var src multipart.File
+	var dst *os.File
+	var err error
+
+	if err = os.MkdirAll(destDirectory, os.ModePerm); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+
+	if file, err = c.FormFile("image"); err != nil {
+		errMsg = "Unable to parse image"
+		return "", errors.E(err, op, errMsg, errors.KindBadRequest)
+	}
+
+	if src, err = file.Open(); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+	defer src.Close()
+
+	filename := fmt.Sprintf("%s-%s", uuid.New().String(), file.Filename)
+	filepath := path.Join(destDirectory, filename)
+	if dst, err = os.Create(filepath); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+	defer dst.Close()
+
+	if _, err = io.Copy(dst, src); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+
+	return filename, err
 }

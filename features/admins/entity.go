@@ -24,6 +24,7 @@ type IBusiness interface {
 	FindAdminByEmail(email string) (AdminCore, error)
 	CreateAdmin(admin AdminCore) error
 	EditAdmin(admin AdminCore) error
+	EditAdminProfileImage(admin AdminCore) error
 	EditAdminPassword(id int, updatedBy int, oldPassword string, newPassword string) error
 	RemoveAdminById(id int, updatedBy int) error
 }

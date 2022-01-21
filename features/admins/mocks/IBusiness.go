@@ -54,6 +54,20 @@ func (_m *IBusiness) EditAdminPassword(id int, updatedBy int, oldPassword string
 	return r0
 }
 
+// EditAdminProfileImage provides a mock function with given fields: admin
+func (_m *IBusiness) EditAdminProfileImage(admin admins.AdminCore) error {
+	ret := _m.Called(admin)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(admins.AdminCore) error); ok {
+		r0 = rf(admin)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FindAdminByEmail provides a mock function with given fields: email
 func (_m *IBusiness) FindAdminByEmail(email string) (admins.AdminCore, error) {
 	ret := _m.Called(email)
