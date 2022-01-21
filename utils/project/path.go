@@ -22,7 +22,7 @@ func loadMainDirectory() {
 	mainDir = filepath.Dir(executableFilePath)
 }
 
-func GetMainDir() string {
+var GetMainDir = func() string {
 	if mainDir == "" {
 		loadMainDirectory()
 	}
