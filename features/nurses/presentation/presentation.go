@@ -190,7 +190,7 @@ func (ap *NursePresentation) PutEditImageProfile(c echo.Context) error {
 func (ap *NursePresentation) DeleteImageProfile(c echo.Context) error {
 	status := http.StatusOK
 	message := "Image profile deleted"
-	const op errors.Op = "admins.presentation.DeleteImageProfile"
+	const op errors.Op = "nurses.presentation.DeleteImageProfile"
 	var errMsg errors.ErrClientMessage
 
 	updatedBy := c.Get("userId").(int)
@@ -203,7 +203,7 @@ func (ap *NursePresentation) DeleteImageProfile(c echo.Context) error {
 	updatedNurse := nurses.NurseCore{ID: nurseID, UpdatedBy: updatedBy, ImageUrl: ""}
 	err = ap.business.EditNurseImageProfile(updatedNurse)
 	if err != nil {
-		return response.Error(c, err)
+		return response.Error(c, errors.E(err, op))
 	}
 
 	return response.Success(c, status, message, nil)
