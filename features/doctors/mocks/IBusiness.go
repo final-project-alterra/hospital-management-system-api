@@ -68,6 +68,20 @@ func (_m *IBusiness) EditDoctor(doctor doctors.DoctorCore) error {
 	return r0
 }
 
+// EditDoctorImageProfile provides a mock function with given fields: doctor
+func (_m *IBusiness) EditDoctorImageProfile(doctor doctors.DoctorCore) error {
+	ret := _m.Called(doctor)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(doctors.DoctorCore) error); ok {
+		r0 = rf(doctor)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // EditDoctorPassword provides a mock function with given fields: id, updatedBy, oldPassword, newPassword
 func (_m *IBusiness) EditDoctorPassword(id int, updatedBy int, oldPassword string, newPassword string) error {
 	ret := _m.Called(id, updatedBy, oldPassword, newPassword)
