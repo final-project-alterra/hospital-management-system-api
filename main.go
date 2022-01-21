@@ -10,12 +10,7 @@ import (
 )
 
 func main() {
-	mainDirectory, err := project.MainDirectory()
-	if err != nil {
-		panic(err)
-	}
-
-	config.LoadENV(path.Join(mainDirectory, ".env"))
+	config.LoadENV(path.Join(project.GetMainDir(), ".env"))
 	config.InitTimeLoc(config.ENV.TIMEZONE)
 	config.ConnectDB()
 	migration.AutoMigrate()
