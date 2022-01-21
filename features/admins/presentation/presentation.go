@@ -109,9 +109,9 @@ func (ap *AdminPresentation) PutEditImageProfile(c echo.Context) error {
 	var errMsg errors.ErrClientMessage
 
 	updatedBy := c.Get("userId").(int)
-	adminID, err := strconv.Atoi(c.FormValue("userId"))
+	adminID, err := strconv.Atoi(c.FormValue("adminId"))
 	if err != nil {
-		errMsg = "Unable to parse user id"
+		errMsg = "Unable to parse admin id"
 		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
 	}
 

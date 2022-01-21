@@ -151,18 +151,18 @@ func (ab *adminBusiness) EditAdminProfileImage(admin admins.AdminCore) error {
 			return errors.E(err, op)
 		}
 	}
-
-	exisitingImage := path.Join(project.GetMainDir(), "files", existingAdmin.ImageUrl)
-	go os.Remove(exisitingImage)
+	olImage := path.Join(project.GetMainDir(), "files", existingAdmin.ImageUrl)
 
 	existingAdmin.ImageUrl = admin.ImageUrl
 	existingAdmin.UpdatedBy = admin.UpdatedBy
 
 	err = ab.data.UpdateAdmin(existingAdmin)
 	if err != nil {
-		go os.Remove(path.Join(project.GetMainDir(), "files", admin.ImageUrl))
+		go os.Remove(newImage)
 		return errors.E(err, op)
 	}
+
+	go os.Remove(olImage)
 
 	return nil
 }
@@ -239,12 +239,12 @@ func (ab *adminBusiness) RemoveAdminById(id int, updatedBy int) error {
 			return errors.E(err, op)
 		}
 	}
+	existingImage := path.Join(project.GetMainDir(), "files", existingAdmin.ImageUrl)
 
 	err = ab.data.DeleteAdminById(id, updatedBy)
 	if err != nil {
 		return errors.E(err, op)
 	}
-	existingImage := path.Join(project.GetMainDir(), "files", existingAdmin.ImageUrl)
 	go os.Remove(existingImage)
 
 	return nil
