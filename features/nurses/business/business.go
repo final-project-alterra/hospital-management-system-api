@@ -1,12 +1,16 @@
 package business
 
 import (
+	"os"
+	"path"
+
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 )
 
 type nurseBusiness struct {
@@ -114,6 +118,38 @@ func (n *nurseBusiness) EditNurse(nurse nurses.NurseCore) error {
 	return nil
 }
 
+func (nb *nurseBusiness) EditNurseImageProfile(nurse nurses.NurseCore) error {
+	const op errors.Op = "nurses.business.EditNurseImageProfile"
+
+	newImage := path.Join(project.GetMainDir(), "files", nurse.ImageUrl)
+
+	_, err := nb.adminBusiness.FindAdminById(nurse.UpdatedBy)
+	if err != nil {
+		go os.Remove(newImage)
+		return errors.E(err, op)
+	}
+
+	existingNurse, err := nb.data.SelectNurseById(nurse.ID)
+	if err != nil {
+		go os.Remove(newImage)
+		return errors.E(err, op)
+	}
+	oldImage := path.Join(project.GetMainDir(), "files", existingNurse.ImageUrl)
+
+	existingNurse.ImageUrl = nurse.ImageUrl
+	existingNurse.UpdatedBy = nurse.UpdatedBy
+
+	err = nb.data.UpdateNurse(existingNurse)
+	if err != nil {
+		go os.Remove(newImage)
+		return errors.E(err, op)
+	}
+
+	go os.Remove(oldImage)
+
+	return nil
+}
+
 func (n *nurseBusiness) EditNursePassword(id int, updatedBy int, oldPassword string, newPassword string) error {
 	const op errors.Op = "nurses.business.EditNursePassword"
 	var errMessage errors.ErrClientMessage = "Something went wrong"
@@ -156,6 +192,12 @@ func (n *nurseBusiness) RemoveNurseById(id int, updatedBy int) error {
 		return errors.E(err, op)
 	}
 
+	existingNurse, err := n.data.SelectNurseById(id)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	existingImage := path.Join(project.GetMainDir(), "files", existingNurse.ImageUrl)
+
 	err = n.scheduleBusiness.RemoveNurseFromNextWorkSchedules(id)
 	if err != nil {
 		return errors.E(err, op)
@@ -165,6 +207,9 @@ func (n *nurseBusiness) RemoveNurseById(id int, updatedBy int) error {
 	if err != nil {
 		return errors.E(err, op)
 	}
+
+	go os.Remove(existingImage)
+
 	return nil
 }
 

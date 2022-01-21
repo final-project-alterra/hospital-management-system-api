@@ -25,6 +25,7 @@ type IBusiness interface {
 	FindNurseByEmail(email string) (NurseCore, error)
 	CreateNurse(nurse NurseCore) error
 	EditNurse(nurse NurseCore) error
+	EditNurseImageProfile(nurse NurseCore) error
 	EditNursePassword(id int, updatedBy int, oldPassword string, newPassword string) error
 	RemoveNurseById(id int, updatedBy int) error
 }

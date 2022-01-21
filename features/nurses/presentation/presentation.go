@@ -1,14 +1,21 @@
 package presentation
 
 import (
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path"
 	"strconv"
 
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses/presentation/request"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses/presentation/response"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -152,6 +159,56 @@ func (np *NursePresentation) PutEditNursePassword(c echo.Context) error {
 	return response.Success(c, status, message, nil)
 }
 
+func (ap *NursePresentation) PutEditImageProfile(c echo.Context) error {
+	status := http.StatusOK
+	message := "Image profile updated"
+	const op errors.Op = "nurses.presentation.PutEditImageProfile"
+	var errMsg errors.ErrClientMessage
+
+	updatedBy := c.Get("userId").(int)
+	nuserID, err := strconv.Atoi(c.FormValue("nurseId"))
+	if err != nil {
+		errMsg = "Unable to parse nurse id"
+		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
+	}
+
+	destDirectory := path.Join(project.GetMainDir(), "files")
+	filename, err := ap.allocateFile(c, destDirectory)
+	if err != nil {
+		return response.Error(c, errors.E(err, op))
+	}
+
+	updatedNurse := nurses.NurseCore{ID: nuserID, UpdatedBy: updatedBy, ImageUrl: filename}
+	err = ap.business.EditNurseImageProfile(updatedNurse)
+	if err != nil {
+		return response.Error(c, errors.E(err, op))
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
+func (ap *NursePresentation) DeleteImageProfile(c echo.Context) error {
+	status := http.StatusOK
+	message := "Image profile deleted"
+	const op errors.Op = "admins.presentation.DeleteImageProfile"
+	var errMsg errors.ErrClientMessage
+
+	updatedBy := c.Get("userId").(int)
+	nurseID, err := strconv.Atoi(c.Param("nurseId"))
+	if err != nil {
+		errMsg = "Unable to parse nurse id"
+		return response.Error(c, errors.E(err, op, errMsg, errors.KindBadRequest))
+	}
+
+	updatedNurse := nurses.NurseCore{ID: nurseID, UpdatedBy: updatedBy, ImageUrl: ""}
+	err = ap.business.EditNurseImageProfile(updatedNurse)
+	if err != nil {
+		return response.Error(c, err)
+	}
+
+	return response.Success(c, status, message, nil)
+}
+
 func (np *NursePresentation) DeleteNurse(c echo.Context) error {
 	status := http.StatusOK
 	message := "Success deleting nurse"
@@ -178,4 +235,42 @@ func (np *NursePresentation) DeleteNurse(c echo.Context) error {
 	}
 
 	return response.Success(c, status, message, nil)
+}
+
+// Private methods
+func (ap *NursePresentation) allocateFile(c echo.Context, destDirectory string) (string, error) {
+	const op errors.Op = "nurses.presentation.allocateFile"
+	var errMsg errors.ErrClientMessage = "Something went wrong"
+
+	var file *multipart.FileHeader
+	var src multipart.File
+	var dst *os.File
+	var err error
+
+	if err = os.MkdirAll(destDirectory, os.ModePerm); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+
+	if file, err = c.FormFile("image"); err != nil {
+		errMsg = "Unable to parse image"
+		return "", errors.E(err, op, errMsg, errors.KindBadRequest)
+	}
+
+	if src, err = file.Open(); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+	defer src.Close()
+
+	filename := fmt.Sprintf("%s-%s", uuid.New().String(), file.Filename)
+	filepath := path.Join(destDirectory, filename)
+	if dst, err = os.Create(filepath); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+	defer dst.Close()
+
+	if _, err = io.Copy(dst, src); err != nil {
+		return "", errors.E(err, op, errMsg, errors.KindServerError)
+	}
+
+	return filename, err
 }

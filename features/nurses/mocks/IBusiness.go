@@ -40,6 +40,20 @@ func (_m *IBusiness) EditNurse(nurse nurses.NurseCore) error {
 	return r0
 }
 
+// EditNurseImageProfile provides a mock function with given fields: nurse
+func (_m *IBusiness) EditNurseImageProfile(nurse nurses.NurseCore) error {
+	ret := _m.Called(nurse)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(nurses.NurseCore) error); ok {
+		r0 = rf(nurse)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // EditNursePassword provides a mock function with given fields: id, updatedBy, oldPassword, newPassword
 func (_m *IBusiness) EditNursePassword(id int, updatedBy int, oldPassword string, newPassword string) error {
 	ret := _m.Called(id, updatedBy, oldPassword, newPassword)
