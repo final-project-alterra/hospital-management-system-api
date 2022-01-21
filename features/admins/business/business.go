@@ -1,13 +1,13 @@
 package business
 
 import (
-	"os"
 	"path"
 
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/files"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 )
@@ -130,7 +130,7 @@ func (ab *adminBusiness) EditAdminProfileImage(admin admins.AdminCore) error {
 
 	_, err := ab.data.SelectAdminById(admin.UpdatedBy)
 	if err != nil {
-		go os.Remove(newImage)
+		go func() { _ = files.Remove(newImage) }()
 		switch errors.Kind(err) {
 		case errors.KindNotFound:
 			errMessage = "Admin who wants to update is not found"
@@ -142,7 +142,7 @@ func (ab *adminBusiness) EditAdminProfileImage(admin admins.AdminCore) error {
 
 	existingAdmin, err := ab.data.SelectAdminById(admin.ID)
 	if err != nil {
-		go os.Remove(newImage)
+		go func() { _ = files.Remove(newImage) }()
 		switch errors.Kind(err) {
 		case errors.KindNotFound:
 			errMessage = "Admin who wants to be updated is not found"
@@ -158,12 +158,11 @@ func (ab *adminBusiness) EditAdminProfileImage(admin admins.AdminCore) error {
 
 	err = ab.data.UpdateAdmin(existingAdmin)
 	if err != nil {
-		go os.Remove(newImage)
+		go func() { _ = files.Remove(newImage) }()
 		return errors.E(err, op)
 	}
 
-	go os.Remove(olImage)
-
+	go func() { _ = files.Remove(olImage) }()
 	return nil
 }
 
@@ -245,8 +244,8 @@ func (ab *adminBusiness) RemoveAdminById(id int, updatedBy int) error {
 	if err != nil {
 		return errors.E(err, op)
 	}
-	go os.Remove(existingImage)
 
+	go func() { _ = files.Remove(existingImage) }()
 	return nil
 }
 
