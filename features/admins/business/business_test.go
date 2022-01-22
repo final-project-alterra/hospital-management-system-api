@@ -7,18 +7,24 @@ import (
 
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
+	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	ab "github.com/final-project-alterra/hospital-management-system-api/features/admins/business"
 	adminMock "github.com/final-project-alterra/hospital-management-system-api/features/admins/mocks"
+	doctorMock "github.com/final-project-alterra/hospital-management-system-api/features/doctors/mocks"
+	nurseMock "github.com/final-project-alterra/hospital-management-system-api/features/nurses/mocks"
 )
 
 var (
 	adminsData adminMock.IData
 
-	adminsBusiness admins.IBusiness
+	adminsBusiness  admins.IBusiness
+	doctorsBusiness doctorMock.IBusiness
+	nursesBusiness  nurseMock.IBusiness
 
 	adminValue admins.AdminCore
 	newAdmin   admins.AdminCore
@@ -29,7 +35,11 @@ var (
 
 // bikin adapternya
 func TestMain(m *testing.M) {
-	adminsBusiness = ab.NewAdminBusinessBuilder().SetData(&adminsData).Build()
+	adminsBusiness = ab.NewAdminBusinessBuilder().
+		SetData(&adminsData).
+		SetDoctorBusiness(&doctorsBusiness).
+		SetNurseBusiness(&nursesBusiness).
+		Build()
 
 	errNotFound = errors.E(errors.New("not found"), errors.KindNotFound)
 	errServer = errors.E(errors.New("error"), errors.KindServerError)
@@ -155,6 +165,16 @@ func TestCreateAdmin(t *testing.T) {
 			Return(admins.AdminCore{}, errNotFound).
 			Once()
 
+		doctorsBusiness.
+			On("FindDoctorByEmail", mock.AnythingOfType("string")).
+			Return(doctors.DoctorCore{}, errNotFound).
+			Once()
+
+		nursesBusiness.
+			On("FindNurseByEmail", mock.AnythingOfType("string")).
+			Return(nurses.NurseCore{}, errNotFound).
+			Once()
+
 		adminsData.
 			On("InsertAdmin", mock.AnythingOfType("admins.AdminCore")).
 			Return(nil).
@@ -190,37 +210,59 @@ func TestCreateAdmin(t *testing.T) {
 	})
 
 	t.Run("valid - when email already registered", func(t *testing.T) {
-		adminsData.
-			On("SelectAdminById", mock.AnythingOfType("int")).
-			Return(admins.AdminCore{}, nil).
-			Once()
+		for i := 0; i < 3; i++ {
+			adminsData.
+				On("SelectAdminById", mock.AnythingOfType("int")).
+				Return(admins.AdminCore{}, nil).
+				Once()
 
-		adminsData.
-			On("SelectAdminByEmail", mock.AnythingOfType("string")).
-			Return(adminValue, nil).
-			Once()
+			switch i {
+			case 0:
+				adminsData.
+					On("SelectAdminByEmail", mock.AnythingOfType("string")).
+					Return(adminValue, nil).
+					Once()
+				doctorsBusiness.
+					On("FindDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{}, errNotFound).
+					Once()
+				nursesBusiness.
+					On("FindNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{}, errNotFound).
+					Once()
+			case 1:
+				adminsData.
+					On("SelectAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{}, errNotFound).
+					Once()
+				doctorsBusiness.
+					On("FindDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{ID: 1}, nil).
+					Once()
+				nursesBusiness.
+					On("FindNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{}, errNotFound).
+					Once()
+			case 2:
+				adminsData.
+					On("SelectAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{}, errNotFound).
+					Once()
+				doctorsBusiness.
+					On("FindDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{}, errNotFound).
+					Once()
+				nursesBusiness.
+					On("FindNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{ID: 1}, nil).
+					Once()
+			}
 
-		err := adminsBusiness.CreateAdmin(newAdmin)
+			err := adminsBusiness.CreateAdmin(newAdmin)
 
-		assert.Error(t, err)
-		assert.Equal(t, errors.KindUnprocessable, errors.Kind(err))
-	})
-
-	t.Run("valid - when unknwon error occurs on SelectAdminByEmail", func(t *testing.T) {
-		adminsData.
-			On("SelectAdminById", mock.AnythingOfType("int")).
-			Return(admins.AdminCore{}, nil).
-			Once()
-
-		adminsData.
-			On("SelectAdminByEmail", mock.AnythingOfType("string")).
-			Return(admins.AdminCore{}, errServer).
-			Once()
-
-		err := adminsBusiness.CreateAdmin(newAdmin)
-
-		assert.Error(t, err)
-		assert.Equal(t, errors.KindServerError, errors.Kind(err))
+			assert.Error(t, err)
+			assert.Equal(t, errors.KindUnprocessable, errors.Kind(err))
+		}
 	})
 
 	t.Run("valid - when unknwon error occurs on InsertAdmin", func(t *testing.T) {
@@ -237,6 +279,16 @@ func TestCreateAdmin(t *testing.T) {
 		adminsData.
 			On("InsertAdmin", mock.AnythingOfType("admins.AdminCore")).
 			Return(errServer).
+			Once()
+
+		doctorsBusiness.
+			On("FindDoctorByEmail", mock.AnythingOfType("string")).
+			Return(doctors.DoctorCore{}, errNotFound).
+			Once()
+
+		nursesBusiness.
+			On("FindNurseByEmail", mock.AnythingOfType("string")).
+			Return(nurses.NurseCore{}, errNotFound).
 			Once()
 
 		err := adminsBusiness.CreateAdmin(newAdmin)

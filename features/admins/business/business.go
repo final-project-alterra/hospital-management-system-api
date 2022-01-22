@@ -3,11 +3,15 @@ package business
 import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
+	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 )
 
 type adminBusiness struct {
-	data admins.IData
+	data           admins.IData
+	doctorBusiness doctors.IBusiness
+	nurseBusiness  nurses.IBusiness
 }
 
 func (ab *adminBusiness) FindAdmins() ([]admins.AdminCore, error) {
@@ -57,13 +61,7 @@ func (ab *adminBusiness) CreateAdmin(admin admins.AdminCore) error {
 	}
 
 	// Check wheter email is already registered
-	_, err = ab.data.SelectAdminByEmail(admin.Email)
-	if err == nil {
-		err = errors.New("Duplicate email when createing new admin")
-		errMessage = "Email already exists"
-		return errors.E(err, op, errMessage, errors.KindUnprocessable)
-	}
-	if errors.Kind(err) != errors.KindNotFound {
+	if err = ab.checkEmail(admin.Email); err != nil {
 		return errors.E(err, op)
 	}
 
@@ -88,7 +86,7 @@ func (ab *adminBusiness) EditAdmin(admin admins.AdminCore) error {
 	if err != nil {
 		switch errors.Kind(err) {
 		case errors.KindNotFound:
-			errMessage = "Admin who wants to update is not found"
+			errMessage = "Admin who wants to be updated is not found"
 			return errors.E(err, op, errMessage)
 		default:
 			return errors.E(err, op)
@@ -99,7 +97,7 @@ func (ab *adminBusiness) EditAdmin(admin admins.AdminCore) error {
 	if err != nil {
 		switch errors.Kind(err) {
 		case errors.KindNotFound:
-			errMessage = "Admin who wants to be updated is not found"
+			errMessage = "Admin who wants to update is not found"
 			return errors.E(err, op, errMessage)
 		default:
 			return errors.E(err, op)
@@ -187,4 +185,66 @@ func (ab *adminBusiness) RemoveAdminById(id int, updatedBy int) error {
 		return errors.E(err, op)
 	}
 	return nil
+}
+
+// Private methods
+func (ab *adminBusiness) checkEmail(email string) error {
+	const op errors.Op = "admins.business.checkEmail"
+	var errMsg errors.ErrClientMessage = "Email already exist"
+
+	adminCh := make(chan error)
+	doctorCh := make(chan error)
+	nurseCh := make(chan error)
+
+	go func() {
+		_, err := ab.data.SelectAdminByEmail(email)
+		if err != nil {
+			if errors.Kind(err) == errors.KindNotFound {
+				err = nil
+			}
+			adminCh <- err
+			return
+		}
+		adminCh <- errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}()
+
+	go func() {
+		_, err := ab.doctorBusiness.FindDoctorByEmail(email)
+		if err != nil {
+			if errors.Kind(err) == errors.KindNotFound {
+				err = nil
+			}
+			doctorCh <- err
+			return
+		}
+		doctorCh <- errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}()
+
+	go func() {
+		_, err := ab.nurseBusiness.FindNurseByEmail(email)
+		if err != nil {
+			if errors.Kind(err) == errors.KindNotFound {
+				err = nil
+			}
+			nurseCh <- err
+			return
+		}
+		nurseCh <- errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}()
+
+	adminErr := <-adminCh
+	doctorErr := <-doctorCh
+	nurseErr := <-nurseCh
+
+	if adminErr == nil && doctorErr == nil && nurseErr == nil {
+		return nil
+	}
+
+	if adminErr != nil {
+		return adminErr
+	}
+	if doctorErr != nil {
+		return doctorErr
+	}
+	return nurseErr
 }

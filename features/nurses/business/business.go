@@ -3,6 +3,7 @@ package business
 import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
+	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
@@ -11,6 +12,7 @@ import (
 type nurseBusiness struct {
 	data             nurses.IData
 	adminBusiness    admins.IBusiness
+	doctorBusiness   doctors.IBusiness
 	scheduleBusiness schedules.IBusiness
 }
 
@@ -70,14 +72,8 @@ func (n *nurseBusiness) CreateNurse(nurse nurses.NurseCore) error {
 		}
 	}
 
-	_, err = n.data.SelectNurseByEmail(nurse.Email)
-	if err == nil {
-		err = errors.New("Email is already used")
-		errMessage = "Email is already used"
-		return errors.E(err, op, errMessage, errors.KindUnprocessable)
-	}
-	if errors.Kind(err) != errors.KindNotFound {
-		return errors.E(err, op, errMessage, errors.KindServerError)
+	if err = n.checkEmail(nurse.Email); err != nil {
+		return errors.E(err, op)
 	}
 
 	nurse.Password, err = hash.Generate(nurse.Password)
@@ -170,4 +166,66 @@ func (n *nurseBusiness) RemoveNurseById(id int, updatedBy int) error {
 		return errors.E(err, op)
 	}
 	return nil
+}
+
+// Private methods
+func (nb *nurseBusiness) checkEmail(email string) error {
+	const op errors.Op = "admins.business.checkEmail"
+	var errMsg errors.ErrClientMessage = "Email already exist"
+
+	adminCh := make(chan error)
+	doctorCh := make(chan error)
+	nurseCh := make(chan error)
+
+	go func() {
+		_, err := nb.data.SelectNurseByEmail(email)
+		if err != nil {
+			if errors.Kind(err) == errors.KindNotFound {
+				err = nil
+			}
+			nurseCh <- err
+			return
+		}
+		nurseCh <- errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}()
+
+	go func() {
+		_, err := nb.adminBusiness.FindAdminByEmail(email)
+		if err != nil {
+			if errors.Kind(err) == errors.KindNotFound {
+				err = nil
+			}
+			adminCh <- err
+			return
+		}
+		adminCh <- errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}()
+
+	go func() {
+		_, err := nb.doctorBusiness.FindDoctorByEmail(email)
+		if err != nil {
+			if errors.Kind(err) == errors.KindNotFound {
+				err = nil
+			}
+			doctorCh <- err
+			return
+		}
+		doctorCh <- errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+	}()
+
+	adminErr := <-adminCh
+	doctorErr := <-doctorCh
+	nurseErr := <-nurseCh
+
+	if adminErr == nil && doctorErr == nil && nurseErr == nil {
+		return nil
+	}
+
+	if adminErr != nil {
+		return adminErr
+	}
+	if doctorErr != nil {
+		return doctorErr
+	}
+	return nurseErr
 }

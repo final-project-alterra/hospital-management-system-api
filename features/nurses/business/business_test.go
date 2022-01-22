@@ -7,6 +7,8 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	am "github.com/final-project-alterra/hospital-management-system-api/features/admins/mocks"
+	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
+	dm "github.com/final-project-alterra/hospital-management-system-api/features/doctors/mocks"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	nb "github.com/final-project-alterra/hospital-management-system-api/features/nurses/business"
 	nm "github.com/final-project-alterra/hospital-management-system-api/features/nurses/mocks"
@@ -21,6 +23,7 @@ var (
 
 	business         nurses.IBusiness
 	adminBusiness    am.IBusiness
+	doctorBusiness   dm.IBusiness
 	scheduleBusiness sm.IBusiness
 
 	admin1 admins.AdminCore
@@ -34,6 +37,7 @@ func TestMain(t *testing.M) {
 	business = nb.NewNurseBusinessBuilder().
 		SetData(&repo).
 		SetAdminBusiness(&adminBusiness).
+		SetDoctorBusiness(&doctorBusiness).
 		SetScheduleBusiness(&scheduleBusiness).
 		Build()
 
@@ -173,6 +177,16 @@ func TestCreateNurse(t *testing.T) {
 			Return(nurses.NurseCore{}, errNotFound).
 			Once()
 
+		adminBusiness.
+			On("FindAdminByEmail", mock.AnythingOfType("string")).
+			Return(admins.AdminCore{}, errNotFound).
+			Once()
+
+		doctorBusiness.
+			On("FindDoctorByEmail", mock.AnythingOfType("string")).
+			Return(doctors.DoctorCore{}, errNotFound).
+			Once()
+
 		repo.
 			On("InsertNurse", mock.AnythingOfType("nurses.NurseCore")).
 			Return(nil).
@@ -208,30 +222,61 @@ func TestCreateNurse(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(admin1, nil).
-			Once()
+			Times(3)
 
-		repo.
-			On("SelectNurseByEmail", mock.AnythingOfType("string")).
-			Return(nurses.NurseCore{ID: 2, Email: nurse1.Email}, nil).
-			Once()
+		for i := 0; i < 3; i++ {
+			switch i {
+			case 0:
+				repo.
+					On("SelectNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{ID: 2, Email: nurse1.Email}, nil).
+					Once()
 
-		err := business.CreateNurse(nurse1)
-		assert.Error(t, err)
-	})
+				adminBusiness.
+					On("FindAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{}, errNotFound).
+					Once()
 
-	t.Run("valid - when SelectNurseByEmail return server error", func(t *testing.T) {
-		adminBusiness.
-			On("FindAdminById", mock.AnythingOfType("int")).
-			Return(admin1, nil).
-			Once()
+				doctorBusiness.
+					On("FindDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{}, errNotFound).
+					Once()
+			case 1:
+				repo.
+					On("SelectNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{}, errNotFound).
+					Once()
 
-		repo.
-			On("SelectNurseByEmail", mock.AnythingOfType("string")).
-			Return(nurses.NurseCore{}, errServer).
-			Once()
+				adminBusiness.
+					On("FindAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{ID: 1}, nil).
+					Once()
 
-		err := business.CreateNurse(nurse1)
-		assert.Error(t, err)
+				doctorBusiness.
+					On("FindDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{}, errNotFound).
+					Once()
+			case 2:
+				repo.
+					On("SelectNurseByEmail", mock.AnythingOfType("string")).
+					Return(nurses.NurseCore{}, errNotFound).
+					Once()
+
+				adminBusiness.
+					On("FindAdminByEmail", mock.AnythingOfType("string")).
+					Return(admins.AdminCore{}, errNotFound).
+					Once()
+
+				doctorBusiness.
+					On("FindDoctorByEmail", mock.AnythingOfType("string")).
+					Return(doctors.DoctorCore{ID: 1}, nil).
+					Once()
+			}
+
+			err := business.CreateNurse(nurse1)
+			assert.Error(t, err)
+		}
+
 	})
 
 	t.Run("valid - when InsertNurse return error", func(t *testing.T) {
@@ -243,6 +288,16 @@ func TestCreateNurse(t *testing.T) {
 		repo.
 			On("SelectNurseByEmail", mock.AnythingOfType("string")).
 			Return(nurses.NurseCore{}, errNotFound).
+			Once()
+
+		adminBusiness.
+			On("FindAdminByEmail", mock.AnythingOfType("string")).
+			Return(admins.AdminCore{}, errNotFound).
+			Once()
+
+		doctorBusiness.
+			On("FindDoctorByEmail", mock.AnythingOfType("string")).
+			Return(doctors.DoctorCore{}, errNotFound).
 			Once()
 
 		repo.
