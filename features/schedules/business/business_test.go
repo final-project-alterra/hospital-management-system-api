@@ -3,6 +3,7 @@ package business_test
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/final-project-alterra/hospital-management-system-api/config"
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
@@ -572,7 +573,17 @@ func TestRemoveWorkScheduleById(t *testing.T) {
 }
 
 func TestRemoveDoctorFutureWorkSchedules(t *testing.T) {
+	w := workSchedule1
+	o := outpatient1
+	o.Status = s.StatusWaiting
+	w.Outpatients = []s.OutpatientCore{o}
+
 	t.Run("valid - when everything is fine", func(t *testing.T) {
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{w}, nil).
+			Once()
+
 		repo.
 			On("DeleteWorkSchedulesByDoctorId", anyInt, any).
 			Return(nil).
@@ -582,7 +593,37 @@ func TestRemoveDoctorFutureWorkSchedules(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("valid - when SelectWorkSchedulesByDoctorId error", func(t *testing.T) {
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{}, errServer).
+			Once()
+
+		err := business.RemoveDoctorFutureWorkSchedules(1)
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when there exists ongoing outpatients", func(t *testing.T) {
+		newWorkschedule := w
+		newOutpatient := o
+		newOutpatient.Status = s.StatusOnprogress
+		newWorkschedule.Outpatients = []s.OutpatientCore{newOutpatient}
+
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{newWorkschedule}, nil).
+			Once()
+
+		err := business.RemoveDoctorFutureWorkSchedules(1)
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - DeleteWorkSchedulesByDoctorId error", func(t *testing.T) {
+		repo.
+			On("SelectWorkSchedulesByDoctorId", anyInt, any).
+			Return([]s.WorkScheduleCore{w}, nil).
+			Once()
+
 		repo.
 			On("DeleteWorkSchedulesByDoctorId", anyInt, any).
 			Return(errServer).
@@ -1191,15 +1232,24 @@ func TestExamineOutpatient(t *testing.T) {
 		},
 	}
 
+	yearFormat := "2006-01-02"
+	timeFormat := "15:04:05"
+	now := time.Now().In(config.GetTimeLoc())
+
+	schedule := s.WorkScheduleCore{
+		Date:      now.Format(yearFormat),
+		StartTime: now.Format(timeFormat),
+		EndTime:   now.Add(2 * time.Hour).Format(timeFormat),
+	}
+
 	t.Run("valid - for doctor when everything is fine", func(t *testing.T) {
 		repo.
 			On("SelectOutpatientById", anyInt).
 			Return(waiting, nil).
 			Once()
 
-		w := s.WorkScheduleCore{
-			Outpatients: []s.OutpatientCore{waiting},
-		}
+		w := schedule
+		w.Outpatients = []s.OutpatientCore{waiting}
 		repo.
 			On("SelectOutpatientsByWorkScheduleId", anyInt).
 			Return(w, nil).
@@ -1220,9 +1270,9 @@ func TestExamineOutpatient(t *testing.T) {
 			Return(waiting, nil).
 			Once()
 
-		w := s.WorkScheduleCore{
-			Outpatients: []s.OutpatientCore{waiting},
-		}
+		w := schedule
+		w.Outpatients = []s.OutpatientCore{waiting}
+
 		repo.
 			On("SelectOutpatientsByWorkScheduleId", anyInt).
 			Return(w, nil).
@@ -1302,15 +1352,35 @@ func TestExamineOutpatient(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("valid - when schedule examination is not available", func(t *testing.T) {
+		repo.
+			On("SelectOutpatientById", anyInt).
+			Return(waiting, nil).
+			Once()
+
+		w := schedule
+
+		w.Outpatients = []s.OutpatientCore{waiting}
+		w.StartTime = now.Add(-6 * time.Hour).Format(timeFormat)
+		w.EndTime = now.Add(-3 * time.Hour).Format(timeFormat)
+
+		repo.
+			On("SelectOutpatientsByWorkScheduleId", anyInt).
+			Return(w, nil).
+			Once()
+
+		err := business.ExamineOutpatient(outpatient1.ID, nurse1.ID, "nurse")
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - when there's an ongoing examination", func(t *testing.T) {
 		repo.
 			On("SelectOutpatientById", anyInt).
 			Return(waiting, nil).
 			Once()
 
-		w := s.WorkScheduleCore{
-			Outpatients: []s.OutpatientCore{onprogress},
-		}
+		w := schedule
+		w.Outpatients = []s.OutpatientCore{onprogress}
 		repo.
 			On("SelectOutpatientsByWorkScheduleId", anyInt).
 			Return(w, nil).
@@ -1326,9 +1396,8 @@ func TestExamineOutpatient(t *testing.T) {
 			Return(waiting, nil).
 			Once()
 
-		w := s.WorkScheduleCore{
-			Outpatients: []s.OutpatientCore{waiting},
-		}
+		w := schedule
+		w.Outpatients = []s.OutpatientCore{waiting}
 		repo.
 			On("SelectOutpatientsByWorkScheduleId", anyInt).
 			Return(w, nil).

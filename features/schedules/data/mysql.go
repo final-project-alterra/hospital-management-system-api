@@ -237,21 +237,23 @@ func (r *mySQLRepository) DeleteWorkSchedulesByDoctorId(doctorId int, q schedule
 
 	deleteTransaction := func(tx *gorm.DB) error {
 		deleteOutpatients := `
-			DELETE FROM outpatients 
-			WHERE work_schedule_id IN (
+			DELETE outpatients
+			WHERE status = ? AND work_schedule_id IN (
 				SELECT work_schedules.id FROM work_schedules
 				WHERE work_schedules.doctor_id = ? AND (work_schedules.date BETWEEN ? AND ?)
 			)
 		`
-		deleteDoctorWorkSchedules := `
-			DELETE FROM work_schedules
-			WHERE doctor_id = ? AND (date BETWEEN ? AND ?)
-		`
 
-		if err := tx.Exec(deleteOutpatients, doctorId, q.StartDate, q.EndDate).Error; err != nil {
+		err := tx.Exec(deleteOutpatients, schedules.StatusWaiting, doctorId, q.StartDate, q.EndDate).Error
+		if err != nil {
 			return err
 		}
-		if err := tx.Exec(deleteDoctorWorkSchedules, doctorId, q.StartDate, q.EndDate).Error; err != nil {
+
+		err = tx.
+			Where("WHERE doctor_id = ? AND (date BETWEEN ? AND ?)", doctorId, q.StartDate, q.EndDate).
+			Delete(&WorkSchedule{}).
+			Error
+		if err != nil {
 			return err
 		}
 		return nil

@@ -202,12 +202,33 @@ func (s *scheduleBusiness) RemoveWorkScheduleById(workScheduleId int) error {
 
 func (s *scheduleBusiness) RemoveDoctorFutureWorkSchedules(doctorId int) error {
 	const op errors.Op = "schedules.business.RemoveDoctorFutureWorkSchedules"
+	var errMsg errors.ErrClientMessage
 
-	q := schedules.ScheduleQuery{
-		StartDate: time.Now().In(config.GetTimeLoc()).Format("2006-01-02"),
-		EndDate:   time.Now().In(config.GetTimeLoc()).AddDate(100, 0, 0).Format("2006-01-02"),
+	yearFormat := "2006-01-02"
+	now := time.Now().In(config.GetTimeLoc())
+
+	ws, err := s.data.SelectWorkSchedulesByDoctorId(doctorId, schedules.ScheduleQuery{
+		StartDate: now.Format(yearFormat),
+		EndDate:   now.Format(yearFormat),
+		Limit:     10000,
+	})
+	if err != nil {
+		return errors.E(err, op)
 	}
-	err := s.data.DeleteWorkSchedulesByDoctorId(doctorId, q)
+
+	for _, w := range ws {
+		for _, o := range w.Outpatients {
+			if o.Status == schedules.StatusOnprogress {
+				errMsg = "There is an ongoing examination"
+				return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
+			}
+		}
+	}
+
+	err = s.data.DeleteWorkSchedulesByDoctorId(doctorId, schedules.ScheduleQuery{
+		StartDate: now.Format(yearFormat),
+		EndDate:   now.AddDate(100, 0, 0).Format(yearFormat),
+	})
 	if err != nil {
 		return errors.E(err, op)
 	}
@@ -500,6 +521,24 @@ func (s *scheduleBusiness) ExamineOutpatient(outpatientId int, userId int, role 
 	workSchedule, err := s.data.SelectOutpatientsByWorkScheduleId(existingOutpatient.WorkSchedule.ID)
 	if err != nil {
 		return errors.E(err, op)
+	}
+
+	const LAYOUT = "2006-01-02T15:04:05"
+	const OFFSET = 2 * time.Hour
+
+	date := fmt.Sprintf("%sT%s", workSchedule.Date, workSchedule.StartTime)
+	start, _ := time.ParseInLocation(LAYOUT, date, config.GetTimeLoc())
+
+	date = fmt.Sprintf("%sT%s", workSchedule.Date, workSchedule.EndTime)
+	end, _ := time.ParseInLocation(LAYOUT, date, config.GetTimeLoc())
+
+	lowerLimit := start.Add(-OFFSET)
+	upperLimit := end.Add(OFFSET)
+
+	currentTime := time.Now().In(config.GetTimeLoc())
+	if currentTime.Before(lowerLimit) || currentTime.After(upperLimit) {
+		errMsg = "Examine for this schedule is not available"
+		return errors.E(errors.New(string(errMsg)), op, errMsg, errors.KindUnprocessable)
 	}
 
 	for i := range workSchedule.Outpatients {
