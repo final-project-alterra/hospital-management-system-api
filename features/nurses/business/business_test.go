@@ -13,6 +13,7 @@ import (
 	nb "github.com/final-project-alterra/hospital-management-system-api/features/nurses/business"
 	nm "github.com/final-project-alterra/hospital-management-system-api/features/nurses/mocks"
 	sm "github.com/final-project-alterra/hospital-management-system-api/features/schedules/mocks"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/files"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -57,6 +58,8 @@ func TestMain(t *testing.M) {
 
 	errNotFound = errors.E(errors.New("not found"), errors.KindNotFound)
 	errServer = errors.E(errors.New("server error"), errors.KindServerError)
+
+	files.Remove = func(path string) error { return nil }
 
 	os.Exit(t.Run())
 }
@@ -481,11 +484,64 @@ func TestEditNursePassword(t *testing.T) {
 	})
 }
 
+func TestEditNurseImageProfile(t *testing.T) {
+	t.Run("valid - when everything is fine", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(admin1, nil).
+			Once()
+
+		repo.
+			On("SelectNurseById", mock.AnythingOfType("int")).
+			Return(nurse1, nil).
+			Once()
+
+		repo.
+			On("UpdateNurse", mock.Anything).
+			Return(nil).
+			Once()
+
+		err := business.EditNurseImageProfile(nurse1)
+		assert.Nil(t, err)
+	})
+
+	t.Run("valid - when FindAdminById error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(admin1, errServer).
+			Once()
+
+		err := business.EditNurseImageProfile(nurse1)
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when everything is fine", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(admin1, nil).
+			Once()
+
+		repo.
+			On("SelectNurseById", mock.AnythingOfType("int")).
+			Return(nurse1, errServer).
+			Once()
+
+		err := business.EditNurseImageProfile(nurse1)
+		assert.Error(t, err)
+	})
+
+}
+
 func TestRemoveNurseById(t *testing.T) {
 	t.Run("valid - when everything is fine", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(admin1, nil).
+			Once()
+
+		repo.
+			On("SelectNurseById", mock.AnythingOfType("int")).
+			Return(nurse1, nil).
 			Once()
 
 		scheduleBusiness.
@@ -512,10 +568,30 @@ func TestRemoveNurseById(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("valid - when SelectNurseById error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(admin1, nil).
+			Once()
+
+		repo.
+			On("SelectNurseById", mock.AnythingOfType("int")).
+			Return(nurse1, errServer).
+			Once()
+
+		err := business.RemoveNurseById(1, 2)
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - when RemoveNurseFromNextWorkSchedules error", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(admin1, nil).
+			Once()
+
+		repo.
+			On("SelectNurseById", mock.AnythingOfType("int")).
+			Return(nurse1, nil).
 			Once()
 
 		scheduleBusiness.
@@ -531,6 +607,11 @@ func TestRemoveNurseById(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(admin1, nil).
+			Once()
+
+		repo.
+			On("SelectNurseById", mock.AnythingOfType("int")).
+			Return(nurse1, nil).
 			Once()
 
 		scheduleBusiness.
