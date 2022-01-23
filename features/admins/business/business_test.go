@@ -1,7 +1,6 @@
 package business_test
 
 import (
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -69,7 +68,7 @@ func TestMain(m *testing.M) {
 	newAdmin.Email = "hernowo@mail.com"
 	newAdmin.Name = "hernowo"
 
-	files.Remove = func(path string) error { fmt.Print("Remove(): i do nothin'"); return nil }
+	files.Remove = func(path string) error { return nil }
 	project.GetMainDir = func() string { return "" }
 
 	os.Exit(m.Run())
@@ -579,20 +578,6 @@ func TestEditAdminProfileImage(t *testing.T) {
 		}
 	})
 
-	t.Run("valid - when everything is fine", func(t *testing.T) {
-		adminsData.
-			On("SelectAdminById", mock.AnythingOfType("int")).
-			Return(admins.AdminCore{}, nil).
-			Twice()
-
-		adminsData.
-			On("UpdateAdmin", mock.Anything).
-			Return(errServer).
-			Once()
-
-		err := adminsBusiness.EditAdminProfileImage(admins.AdminCore{})
-		assert.Error(t, err)
-	})
 }
 
 func TestRemoveAdminById(t *testing.T) {
