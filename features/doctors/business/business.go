@@ -1,7 +1,6 @@
 package business
 
 import (
-	"os"
 	"path"
 
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
@@ -9,6 +8,7 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/files"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 )
@@ -212,13 +212,13 @@ func (d *doctorBusiness) EditDoctorImageProfile(doctor doctors.DoctorCore) error
 
 	_, err := d.adminBusiness.FindAdminById(doctor.UpdatedBy)
 	if err != nil {
-		go os.Remove(newImage)
+		go func() { _ = files.Remove(newImage) }()
 		return errors.E(err, op)
 	}
 
 	existingDoctor, err := d.data.SelectDoctorById(doctor.ID)
 	if err != nil {
-		go os.Remove(newImage)
+		go func() { _ = files.Remove(newImage) }()
 		return errors.E(err, op)
 	}
 	oldImage := path.Join(project.GetMainDir(), "files", existingDoctor.ImageUrl)
@@ -228,11 +228,11 @@ func (d *doctorBusiness) EditDoctorImageProfile(doctor doctors.DoctorCore) error
 
 	err = d.data.UpdateDoctor(existingDoctor)
 	if err != nil {
-		go os.Remove(newImage)
+		go func() { _ = files.Remove(newImage) }()
 		return errors.E(err, op)
 	}
 
-	go os.Remove(oldImage)
+	go func() { _ = files.Remove(oldImage) }()
 
 	return nil
 }
@@ -268,7 +268,7 @@ func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
 		return errors.E(err, op)
 	}
 
-	go os.Remove(existingImage)
+	go func() { _ = files.Remove(existingImage) }()
 	return nil
 }
 
