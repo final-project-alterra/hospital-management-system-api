@@ -9,7 +9,9 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/files"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -65,6 +67,9 @@ func TestMain(m *testing.M) {
 	newAdmin.CreatedBy = 1
 	newAdmin.Email = "hernowo@mail.com"
 	newAdmin.Name = "hernowo"
+
+	files.Remove = func(path string) error { return nil }
+	project.GetMainDir = func() string { return "" }
 
 	os.Exit(m.Run())
 }
@@ -518,8 +523,70 @@ func TestEditAdminPassword(t *testing.T) {
 	})
 }
 
+func TestEditAdminProfileImage(t *testing.T) {
+	t.Run("valid - when everything is fine", func(t *testing.T) {
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(admins.AdminCore{}, nil).
+			Twice()
+
+		adminsData.
+			On("UpdateAdmin", mock.Anything).
+			Return(nil).
+			Once()
+
+		err := adminsBusiness.EditAdminProfileImage(admins.AdminCore{})
+		assert.Nil(t, err)
+	})
+
+	t.Run("valid - when SelectAdminById error", func(t *testing.T) {
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(admins.AdminCore{}, errNotFound).
+			Once()
+
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(admins.AdminCore{}, errServer).
+			Once()
+
+		for i := 0; i < 2; i++ {
+			err := adminsBusiness.EditAdminProfileImage(admins.AdminCore{})
+			assert.Error(t, err)
+		}
+	})
+
+	t.Run("valid - when second SelectAdminById error", func(t *testing.T) {
+		for i := 1; i <= 2; i++ {
+			adminsData.
+				On("SelectAdminById", mock.AnythingOfType("int")).
+				Return(admins.AdminCore{}, nil).
+				Once()
+			if i%2 != 0 {
+				adminsData.
+					On("SelectAdminById", mock.AnythingOfType("int")).
+					Return(admins.AdminCore{}, errNotFound).
+					Once()
+			} else {
+				adminsData.
+					On("SelectAdminById", mock.AnythingOfType("int")).
+					Return(admins.AdminCore{}, errServer).
+					Once()
+			}
+			err := adminsBusiness.EditAdminProfileImage(admins.AdminCore{})
+			assert.Error(t, err)
+		}
+	})
+
+}
+
 func TestRemoveAdminById(t *testing.T) {
 	t.Run("valid - when RemoveAdminById success", func(t *testing.T) {
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(adminValue, nil).
+			Once()
+
 		adminsData.
 			On("SelectAdminById", mock.AnythingOfType("int")).
 			Return(adminValue, nil).
@@ -537,26 +604,54 @@ func TestRemoveAdminById(t *testing.T) {
 	t.Run("valid - when admin who update data not found", func(t *testing.T) {
 		adminsData.
 			On("SelectAdminById", mock.AnythingOfType("int")).
-			Return(admins.AdminCore{}, errNotFound).
+			Return(adminValue, errNotFound).
 			Once()
 
-		err := adminsBusiness.RemoveAdminById(2, 1)
-		assert.Error(t, err)
-		assert.Equal(t, errors.KindNotFound, errors.Kind(err))
-	})
-
-	t.Run("valid - when error on try to find admin who update data", func(t *testing.T) {
 		adminsData.
 			On("SelectAdminById", mock.AnythingOfType("int")).
-			Return(admins.AdminCore{}, errServer).
+			Return(adminValue, errServer).
 			Once()
 
-		err := adminsBusiness.RemoveAdminById(2, 1)
-		assert.Error(t, err)
-		assert.Equal(t, errors.KindServerError, errors.Kind(err))
+		for i := 0; i < 2; i++ {
+			err := adminsBusiness.RemoveAdminById(2, 1)
+			assert.Error(t, err)
+		}
 	})
 
-	t.Run("valid - when RemoveAdminById failed", func(t *testing.T) {
+	t.Run("valid - when admin who wants to be updated not found", func(t *testing.T) {
+
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(adminValue, nil).
+			Once()
+
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(adminValue, errNotFound).
+			Once()
+
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(adminValue, nil).
+			Once()
+
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(adminValue, errServer).
+			Once()
+
+		for i := 0; i < 2; i++ {
+			err := adminsBusiness.RemoveAdminById(2, 1)
+			assert.Error(t, err)
+		}
+	})
+
+	t.Run("valid - when DeleteAdminById error", func(t *testing.T) {
+		adminsData.
+			On("SelectAdminById", mock.AnythingOfType("int")).
+			Return(adminValue, nil).
+			Once()
+
 		adminsData.
 			On("SelectAdminById", mock.AnythingOfType("int")).
 			Return(adminValue, nil).
@@ -569,6 +664,5 @@ func TestRemoveAdminById(t *testing.T) {
 
 		err := adminsBusiness.RemoveAdminById(2, 1)
 		assert.Error(t, err)
-		assert.Equal(t, errors.KindServerError, errors.Kind(err))
 	})
 }

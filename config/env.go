@@ -19,6 +19,7 @@ type env struct {
 	DB_TIMEZONE string
 
 	TIMEZONE string
+	DOMAIN   string
 }
 
 var ENV env
@@ -44,4 +45,5 @@ func LoadENV(path string) {
 	ENV.DB_TIMEZONE = os.Getenv("DB_TIMEZONE")
 
 	ENV.TIMEZONE = os.Getenv("TIMEZONE")
+	ENV.DOMAIN = os.Getenv("DOMAIN")
 }

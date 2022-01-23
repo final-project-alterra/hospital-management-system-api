@@ -1,8 +1,10 @@
 package response
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/final-project-alterra/hospital-management-system-api/config"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 )
 
@@ -35,6 +37,11 @@ type DoctorResponse struct {
 }
 
 func DetailDoctor(d doctors.DoctorCore) DoctorResponse {
+	imageUrl := ""
+	if d.ImageUrl != "" {
+		imageUrl = fmt.Sprintf("%s/static/%s", config.ENV.DOMAIN, d.ImageUrl)
+	}
+
 	return DoctorResponse{
 		ID: d.ID,
 
@@ -50,7 +57,7 @@ func DetailDoctor(d doctors.DoctorCore) DoctorResponse {
 
 		Name:      d.Name,
 		Email:     d.Email,
-		ImageUrl:  d.ImageUrl,
+		ImageUrl:  imageUrl,
 		Address:   d.Address,
 		BirthDate: d.BirthDate,
 		Phone:     d.Phone,

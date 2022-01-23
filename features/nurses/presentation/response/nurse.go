@@ -1,8 +1,10 @@
 package response
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/final-project-alterra/hospital-management-system-api/config"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 )
 
@@ -20,12 +22,17 @@ type NurseResponse struct {
 }
 
 func DetailNurse(n nurses.NurseCore) NurseResponse {
+	imageUrl := ""
+	if n.ImageUrl != "" {
+		imageUrl = fmt.Sprintf("%s/static/%s", config.ENV.DOMAIN, n.ImageUrl)
+	}
+
 	return NurseResponse{
 		ID:        n.ID,
 		Email:     n.Email,
 		Name:      n.Name,
 		BirthDate: n.BirthDate,
-		ImageUrl:  n.ImageUrl,
+		ImageUrl:  imageUrl,
 		Phone:     n.Phone,
 		Address:   n.Address,
 		Gender:    n.Gender,

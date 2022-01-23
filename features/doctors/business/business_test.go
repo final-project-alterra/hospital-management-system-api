@@ -13,6 +13,7 @@ import (
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	nm "github.com/final-project-alterra/hospital-management-system-api/features/nurses/mocks"
 	sm "github.com/final-project-alterra/hospital-management-system-api/features/schedules/mocks"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/files"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -64,6 +65,8 @@ func TestMain(m *testing.M) {
 	errNotFound = errors.E(errors.New("not found"), errors.KindNotFound)
 	errUnprocessable = errors.E(errors.New("not found"), errors.KindUnprocessable)
 	errServer = errors.E(errors.New("server error"), errors.KindServerError)
+
+	files.Remove = func(path string) error { return nil }
 
 	os.Exit(m.Run())
 }
@@ -740,11 +743,64 @@ func TestEditDoctorPassword(t *testing.T) {
 	})
 }
 
+func TestEditDoctorImageProfile(t *testing.T) {
+	t.Run("valid - when everything is fine", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(adminMaster, nil).
+			Once()
+
+		doctorData.
+			On("SelectDoctorById", mock.AnythingOfType("int")).
+			Return(doctorHan, nil).
+			Once()
+
+		doctorData.
+			On("UpdateDoctor", mock.Anything).
+			Return(nil).
+			Once()
+
+		err := doctorBusiness.EditDoctorImageProfile(doctorHan)
+		assert.Nil(t, err)
+	})
+
+	t.Run("valid - when FindAdminById error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(admins.AdminCore{}, errServer).
+			Once()
+
+		err := doctorBusiness.EditDoctorImageProfile(doctorHan)
+		assert.Error(t, err)
+	})
+
+	t.Run("valid - when SelectDoctorById error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(adminMaster, nil).
+			Once()
+
+		doctorData.
+			On("SelectDoctorById", mock.AnythingOfType("int")).
+			Return(doctors.DoctorCore{}, errServer).
+			Once()
+
+		err := doctorBusiness.EditDoctorImageProfile(doctorHan)
+		assert.Error(t, err)
+	})
+
+}
+
 func TestRemoveDoctorById(t *testing.T) {
 	t.Run("valid - when everything is fine", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(adminMaster, nil).
+			Once()
+
+		doctorData.
+			On("SelectDoctorById", mock.AnythingOfType("int")).
+			Return(doctorHan, nil).
 			Once()
 
 		scheduleBusiness.
@@ -773,7 +829,7 @@ func TestRemoveDoctorById(t *testing.T) {
 		assert.Equal(t, errors.KindNotFound, errors.Kind(err))
 	})
 
-	t.Run("valid - when FindAdminById didnt find admin", func(t *testing.T) {
+	t.Run("valid - when FindAdminById error", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(admins.AdminCore{}, errServer).
@@ -784,10 +840,31 @@ func TestRemoveDoctorById(t *testing.T) {
 		assert.Equal(t, errors.KindServerError, errors.Kind(err))
 	})
 
+	t.Run("valid - when SelectDoctorById error", func(t *testing.T) {
+		adminBusiness.
+			On("FindAdminById", mock.AnythingOfType("int")).
+			Return(adminMaster, nil).
+			Once()
+
+		doctorData.
+			On("SelectDoctorById", mock.AnythingOfType("int")).
+			Return(doctorHan, errServer).
+			Once()
+
+		err := doctorBusiness.RemoveDoctorById(doctorHan.ID, adminMaster.ID)
+
+		assert.Error(t, err)
+	})
+
 	t.Run("valid - when RemoveDoctorFutureWorkSchedules error", func(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(adminMaster, nil).
+			Once()
+
+		doctorData.
+			On("SelectDoctorById", mock.AnythingOfType("int")).
+			Return(doctorHan, nil).
 			Once()
 
 		scheduleBusiness.
@@ -804,6 +881,11 @@ func TestRemoveDoctorById(t *testing.T) {
 		adminBusiness.
 			On("FindAdminById", mock.AnythingOfType("int")).
 			Return(adminMaster, nil).
+			Once()
+
+		doctorData.
+			On("SelectDoctorById", mock.AnythingOfType("int")).
+			Return(doctorHan, nil).
 			Once()
 
 		scheduleBusiness.

@@ -15,5 +15,7 @@ func setupAdminRoutes(e *echo.Echo, presenter *factory.Presenter) {
 	admin.POST("", presenter.AdminPresentation.PostCreateAdmin)
 	admin.PUT("", presenter.AdminPresentation.PutEditAdmin)
 	admin.PUT("/password", presenter.AdminPresentation.PutEditAdminPassword)
+	admin.PUT("/image-profile", presenter.AdminPresentation.PutEditImageProfile)
 	admin.DELETE("/:adminId", presenter.AdminPresentation.DeleteAdmin)
+	admin.DELETE("/:adminId/image-profile", presenter.AdminPresentation.DeleteImageProfile)
 }

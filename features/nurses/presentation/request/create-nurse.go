@@ -9,7 +9,6 @@ type CreateNurseRequest struct {
 	Password  string `json:"password" validate:"required,min=8"`
 	Name      string `json:"name" validate:"required"`
 	BirthDate string `json:"birthDate" validate:"required,ValidateBirthDate"`
-	ImageUrl  string `json:"imageUrl"`
 	Phone     string `json:"phone"`
 	Address   string `json:"address"`
 	Gender    string `json:"gender" validate:"required,oneof='L' 'P'"`
@@ -22,7 +21,6 @@ func (c CreateNurseRequest) ToCore() nurses.NurseCore {
 		Password:  c.Password,
 		Name:      c.Name,
 		BirthDate: c.BirthDate,
-		ImageUrl:  c.ImageUrl,
 		Phone:     c.Phone,
 		Address:   c.Address,
 		Gender:    c.Gender,

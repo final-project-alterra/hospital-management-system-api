@@ -1,11 +1,15 @@
 package business
 
 import (
+	"path"
+
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/files"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 )
 
 type adminBusiness struct {
@@ -118,6 +122,50 @@ func (ab *adminBusiness) EditAdmin(admin admins.AdminCore) error {
 	return nil
 }
 
+func (ab *adminBusiness) EditAdminProfileImage(admin admins.AdminCore) error {
+	const op errors.Op = "admins.business.EditAdminProfileImage"
+	var errMessage errors.ErrClientMessage
+
+	newImage := path.Join(project.GetMainDir(), "files", admin.ImageUrl)
+
+	_, err := ab.data.SelectAdminById(admin.UpdatedBy)
+	if err != nil {
+		go func() { _ = files.Remove(newImage) }()
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wants to update is not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
+
+	existingAdmin, err := ab.data.SelectAdminById(admin.ID)
+	if err != nil {
+		go func() { _ = files.Remove(newImage) }()
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wants to be updated is not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
+	olImage := path.Join(project.GetMainDir(), "files", existingAdmin.ImageUrl)
+
+	existingAdmin.ImageUrl = admin.ImageUrl
+	existingAdmin.UpdatedBy = admin.UpdatedBy
+
+	err = ab.data.UpdateAdmin(existingAdmin)
+	if err != nil {
+		go func() { _ = files.Remove(newImage) }()
+		return errors.E(err, op)
+	}
+
+	go func() { _ = files.Remove(olImage) }()
+	return nil
+}
+
 func (ab *adminBusiness) EditAdminPassword(id int, updatedBy int, oldPassword string, newPassword string) error {
 	const op errors.Op = "admins.business.EditAdminPassword"
 	var errMessage errors.ErrClientMessage
@@ -180,10 +228,24 @@ func (ab *adminBusiness) RemoveAdminById(id int, updatedBy int) error {
 		}
 	}
 
+	existingAdmin, err := ab.data.SelectAdminById(id)
+	if err != nil {
+		switch errors.Kind(err) {
+		case errors.KindNotFound:
+			errMessage = "Admin who wants to be updated is not found"
+			return errors.E(err, op, errMessage)
+		default:
+			return errors.E(err, op)
+		}
+	}
+	existingImage := path.Join(project.GetMainDir(), "files", existingAdmin.ImageUrl)
+
 	err = ab.data.DeleteAdminById(id, updatedBy)
 	if err != nil {
 		return errors.E(err, op)
 	}
+
+	go func() { _ = files.Remove(existingImage) }()
 	return nil
 }
 

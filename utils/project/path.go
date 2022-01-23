@@ -5,13 +5,26 @@ import (
 	"path/filepath"
 )
 
-func MainDirectory() (string, error) {
+var mainDir string
+
+func loadMainDirectory() {
 	var executableFilePath string
 	var err error
 
-	if executableFilePath, err = os.Executable(); err != nil {
-		return "", err
+	if mainDir != "" {
+		return
 	}
 
-	return filepath.Dir(executableFilePath), nil
+	if executableFilePath, err = os.Executable(); err != nil {
+		panic(err.Error())
+	}
+
+	mainDir = filepath.Dir(executableFilePath)
+}
+
+var GetMainDir = func() string {
+	if mainDir == "" {
+		loadMainDirectory()
+	}
+	return mainDir
 }

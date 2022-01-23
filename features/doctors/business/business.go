@@ -1,12 +1,16 @@
 package business
 
 import (
+	"path"
+
 	"github.com/final-project-alterra/hospital-management-system-api/errors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/admins"
 	"github.com/final-project-alterra/hospital-management-system-api/features/doctors"
 	"github.com/final-project-alterra/hospital-management-system-api/features/nurses"
 	"github.com/final-project-alterra/hospital-management-system-api/features/schedules"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/files"
 	"github.com/final-project-alterra/hospital-management-system-api/utils/hash"
+	"github.com/final-project-alterra/hospital-management-system-api/utils/project"
 )
 
 type doctorBusiness struct {
@@ -201,6 +205,38 @@ func (d *doctorBusiness) EditDoctorPassword(id int, updatedBy int, oldPassword s
 	return nil
 }
 
+func (d *doctorBusiness) EditDoctorImageProfile(doctor doctors.DoctorCore) error {
+	const op errors.Op = "doctors.business.EditDoctorImageProfile"
+
+	newImage := path.Join(project.GetMainDir(), "files", doctor.ImageUrl)
+
+	_, err := d.adminBusiness.FindAdminById(doctor.UpdatedBy)
+	if err != nil {
+		go func() { _ = files.Remove(newImage) }()
+		return errors.E(err, op)
+	}
+
+	existingDoctor, err := d.data.SelectDoctorById(doctor.ID)
+	if err != nil {
+		go func() { _ = files.Remove(newImage) }()
+		return errors.E(err, op)
+	}
+	oldImage := path.Join(project.GetMainDir(), "files", existingDoctor.ImageUrl)
+
+	existingDoctor.ImageUrl = doctor.ImageUrl
+	existingDoctor.UpdatedBy = doctor.UpdatedBy
+
+	err = d.data.UpdateDoctor(existingDoctor)
+	if err != nil {
+		go func() { _ = files.Remove(newImage) }()
+		return errors.E(err, op)
+	}
+
+	go func() { _ = files.Remove(oldImage) }()
+
+	return nil
+}
+
 func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
 	const op errors.Op = "doctors.business.RemoveDoctorById"
 	var errMessage errors.ErrClientMessage
@@ -216,6 +252,12 @@ func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
 		}
 	}
 
+	existingDoctor, err := d.data.SelectDoctorById(id)
+	if err != nil {
+		return errors.E(err, op)
+	}
+	existingImage := path.Join(project.GetMainDir(), "files", existingDoctor.ImageUrl)
+
 	err = d.scheduleBusiness.RemoveDoctorFutureWorkSchedules(id)
 	if err != nil {
 		return errors.E(err, op)
@@ -225,6 +267,8 @@ func (d *doctorBusiness) RemoveDoctorById(id int, updatedBy int) error {
 	if err != nil {
 		return errors.E(err, op)
 	}
+
+	go func() { _ = files.Remove(existingImage) }()
 	return nil
 }
 

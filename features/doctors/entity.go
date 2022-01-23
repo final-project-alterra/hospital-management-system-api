@@ -43,6 +43,7 @@ type IBusiness interface {
 	FindDoctorByEmail(email string) (DoctorCore, error)
 	CreateDoctor(doctor DoctorCore) error
 	EditDoctor(doctor DoctorCore) error
+	EditDoctorImageProfile(doctor DoctorCore) error
 	EditDoctorPassword(id int, updatedBy int, oldPassword string, newPassword string) error
 	RemoveDoctorById(id int, updatedBy int) error
 
