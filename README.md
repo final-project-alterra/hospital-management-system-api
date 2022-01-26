@@ -36,7 +36,7 @@
 - Endpoints:
 
   - [Notion version](https://dented-neighbor-55b.notion.site/Endpoints-a872a8843a914264998422e1dccdd684)
-  - [Swagger version]()
+  - [Swagger version](https://app.swaggerhub.com/apis/alfi2811/API_Hospital_Management_System/1.0)
 
 <br>
 
