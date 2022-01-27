@@ -237,7 +237,7 @@ func (r *mySQLRepository) DeleteWorkSchedulesByDoctorId(doctorId int, q schedule
 
 	deleteTransaction := func(tx *gorm.DB) error {
 		deleteOutpatients := `
-			DELETE outpatients
+			DELETE FROM outpatients
 			WHERE status = ? AND work_schedule_id IN (
 				SELECT work_schedules.id FROM work_schedules
 				WHERE work_schedules.doctor_id = ? AND (work_schedules.date BETWEEN ? AND ?)
@@ -474,7 +474,7 @@ func (r *mySQLRepository) DeleteWaitingOutpatientsByPatientId(patientId int) err
 	const op errors.Op = "schedules.data.DeleteWaitingOutpatientsByPatientId"
 	var errMsg errors.ErrClientMessage = "Something went wrong"
 
-	err := r.db.Where("patient_id = ? AND status = ?", patientId, schedules.StatusWaiting).Delete(Outpatient{}).Error
+	err := r.db.Where("patient_id = ? AND status = ?", patientId, schedules.StatusWaiting).Delete(&Outpatient{}).Error
 	if err != nil {
 		return errors.E(err, op, errMsg, errors.KindServerError)
 	}
