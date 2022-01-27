@@ -250,7 +250,7 @@ func (r *mySQLRepository) DeleteWorkSchedulesByDoctorId(doctorId int, q schedule
 		}
 
 		err = tx.
-			Where("WHERE doctor_id = ? AND (date BETWEEN ? AND ?)", doctorId, q.StartDate, q.EndDate).
+			Where("doctor_id = ? AND (date BETWEEN ? AND ?)", doctorId, q.StartDate, q.EndDate).
 			Delete(&WorkSchedule{}).
 			Error
 		if err != nil {
